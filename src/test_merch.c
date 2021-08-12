@@ -25,55 +25,6 @@ int clean_suite(void){
 void test(){
     CU_ASSERT_TRUE(true);
 }
-////////////////////////////////////////////
-// Needs to be tested	     // Is Tested //
-////////////////////////////////////////////
-// add_merchendise	     //
-// add_to_storage	     //
-// create_merch		     // Yes
-// create_shelf		     // Yes
-// destroy_all_merch	     // Yes
-// destroy_locs		     //
-// destroy_merchendise	     // Yes
-// destroy_shelf	     // Yes
-// destroy_storage	     //
-// ? display_shelf	     // ?
-// free_saved_strs	     //
-// free_str		     //
-// get_locations	     //
-// get_merch_name_in_storage //
-// get_shelf_after_shelf_nr  //
-// increase_equal_stock	     //
-// increase_stock	     //
-// is_saved_str		     //
-// list_merchandise	     //
-// list_shelfs		     //
-// lookup_merch_name	     //
-// merch_description	     //
-// merch_in_stock	     //
-// merch_locs		     //
-// merch_stock		     //
-// merch_stock_on_shelf	     //
-// X parse_args		     //
-// print_merch		     //
-// remove_from_storage	     //
-// remove_merchendise	     //
-// remove_name_from_shelf    //
-// remove_shelf		     //
-// rename_merch		     //
-// save_str		     //
-// set_merch_description     //
-// set_merch_price	     //
-// set_merch_stock	     //
-// set_shelf		     //
-// ? show_stock		     //
-// shelf_exists		     //
-// storage_contains	     //
-// store_create		     //
-// store_destroy	     //
-// sync_merch_stock	     //
-// valid_index		     //
-////////////////////////////////////////////
 
 
 
@@ -103,6 +54,1024 @@ void create_destroy_merch_test(void){
   store_destroy(store);
 }
 
+void add_merchendise_test(void) {
+  webstore_t *store = store_create();
+
+
+  add_merchendise(store, "apple", "a fruit", 10);
+  add_merchendise(store, "pear", "a fruit", 12);
+  add_merchendise(store, "orange", "a fruit", 14);
+  
+  store_destroy(store);
+  
+}
+
+void add_to_storage_test(void) {
+  webstore_t *store = store_create();
+
+  add_merchendise(store, "apple",  "a fruit", 10);
+  add_merchendise(store, "pear",   "a fruit", 12);
+  add_merchendise(store, "orange", "a fruit", 14);
+
+  add_to_storage(store, "apple",  "A10");
+  add_to_storage(store, "pear",   "A10");
+  add_to_storage(store, "orange", "D21");
+      
+  store_destroy(store);
+  
+}
+
+
+
+void destroy_storage_test(void){
+
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+  destroy_storage(store);
+  CU_ASSERT_FALSE(shelf_exists(store, "A01"));
+  CU_ASSERT_FALSE(shelf_exists(store, "A10"));
+  CU_ASSERT_FALSE(shelf_exists(store, "D21"));
+  store_destroy(store);
+
+  CU_ASSERT_TRUE(true);
+}
+void display_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+  CU_ASSERT_TRUE(true);
+}
+void free_saved_strs_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void free_str_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void get_locations_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void get_merch_name_in_storage_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void get_shelf_after_shelf_nr_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void increase_equal_stock_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void increase_stock_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void is_saved_str_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void list_merchendise_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void list_shelfs_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void lookup_merch_name_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void merch_description_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void merch_in_stock_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void merch_locs_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void merch_stock_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void merch_stock_on_shelf_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void parse_args_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void print_merch_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void remove_from_stroage_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void remove_merchendise_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void remove_name_from_shelf_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void remove_shelf_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void rename_merch_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void save_str_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void set_merch_description_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void set_merch_price_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void set_merch_stock_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void set_shelf_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void destroy_locs_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+
+void show_stock_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void shelf_exists_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void storage_contains_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void store_create_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void store_destroy_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void sync_merch_stock_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
+void valid_index_test(void){
+  webstore_t *store = store_create();
+
+//  | Merch      | Shelf  | Amount | 
+//  | Ferarri    | A01    | 3      |
+//  | apple      | A10    | 1	   | 
+//  | pear       | A10    | 321	   | 
+//  | orange     | D21    | 123	   | 
+  
+  save_str(store, strdup("Ferarri"));
+  save_str(store, strdup("Merci"));
+  
+  
+  
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  store_destroy(store);
+
+
+
+  CU_ASSERT_TRUE(true);
+}
 
 void destroy_all_merch_test(void) {
   webstore_t *store = store_create();
@@ -311,12 +1280,12 @@ void str_memory_management_system_manual_test(void){
   CU_ASSERT_TRUE(free_str(store, "heap allocated 1\0"));
   CU_ASSERT_TRUE(free_str(store, "heap allocated 2\0"));
   CU_ASSERT_TRUE(free_str(store, "heap allocated 3\0"))
-;
+    ;
   
   CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 1\0"));  
   CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 2\0"));  
   CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 3\0"));  
-//  
+  //  
   // free(str1);  
   store_destroy(store);
 }
@@ -353,7 +1322,46 @@ void shelf_exist_test(void){
   store_destroy(store);
 }
 
+void banner_api_start(void){
 
+  printf("\n");
+  printf("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n");
+  printf("█             STARTING THE MERCHENDISE API TESTS ...       █\n");
+  printf("█                                                          █\n");
+  printf("█__________________________________________________________█\n\n");
+
+
+  CU_ASSERT_TRUE(true);
+}
+void banner_api_end(void){
+  printf("\n");
+  printf("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n");
+  printf("█             FINISHED TESTING MERCHENDISE API ✓           █\n");
+  printf("█                                                          █\n");
+  printf("█__________________________________________________________█\n\n");
+
+
+  CU_ASSERT_TRUE(true);
+}
+
+void banner_start(void){
+  printf("\n");
+  printf("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n");
+  printf("█        STARTING THE MERCHENDISE USE-CASE TESTS ...       █\n");
+  printf("█                                                          █\n");
+  printf("█__________________________________________________________█\n\n");
+
+  CU_ASSERT_TRUE(true);
+}
+void banner_end(void){
+  printf("\n");
+  printf("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n");
+  printf("█          FINISHED TESTING MERCHENDISE USE-CASES ✓        █\n");
+  printf("█                                                          █\n");
+  printf("█__________________________________________________________█\n\n");
+
+  CU_ASSERT_TRUE(true);
+}
 
 
 /////////////////////////////////////////////////////////////
@@ -361,6 +1369,7 @@ int main()
 {
 
   CU_pSuite merch_test_suite = NULL;
+  CU_pSuite merch_api_test_suite = NULL;
   //  CU_pSuite misc_test_suite = NULL;
 
 
@@ -368,61 +1377,318 @@ int main()
   if (CUE_SUCCESS != CU_initialize_registry())
     return CU_get_error();
 
-  merch_test_suite = CU_add_suite("Tests Merch API Features", init_suite, clean_suite);
+  merch_api_test_suite = CU_add_suite("Tests Merch API Features.", init_suite, clean_suite);
+  merch_test_suite = CU_add_suite("Test common use-cases using the API.", init_suite, clean_suite);
   //  misc_test_suite  = CU_add_suite("Test Misc Features",       init_suite, clean_suite);
   
   if (NULL == merch_test_suite){
-      CU_cleanup_registry();
-      return CU_get_error();
+    CU_cleanup_registry();
+    return CU_get_error();
   }
 
-  if ((NULL ==
-       CU_add_test(merch_test_suite,
-                   "Create and Remove Merch: Creation and Deletion of merch\n",
-                   create_destroy_merch_test)) ||
-      (NULL == CU_add_test(merch_test_suite,
-                           "Construct Merch: Creation and Deletion of merch "
-                           "(empty location db) without adding to store.\n",
-                           create_merch_test_empty_locs)) ||
-      (NULL == CU_add_test(merch_test_suite,
-                           "Construct Merch: Creation and Deletion of merch "
-                           "(with location db) without adding to store.\n",
-                           create_merch_test_populated_locs)) ||
-      (NULL == CU_add_test(merch_test_suite,
-                           "Create and Remove Merch: Shelf correct creation, "
-                           "stock and deletion\n",
-                           create_destroy_merch_shelf_test)) ||
 
-      (NULL ==
-       CU_add_test(merch_test_suite,
-                   "Create and Remove Merch: Duplicate creation of merch\n",
-                   create_duplicate_merch_test)) ||
+  if (NULL == merch_api_test_suite){
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
 
-      (NULL ==
-       CU_add_test(merch_test_suite,
-                   "Create and Remove Merch: Automatic deallocation of merch\n",
-                   create_autodestroy_merch_test)) ||
-      (NULL == CU_add_test(merch_test_suite,
-                           "Create Shelf: Creation of shelf.\n",
-                           create_shelf_test)) ||
+  bool merch_test =
+    ((NULL == CU_add_test(merch_test_suite,
+			  "Display banner",
+			  banner_start)) ||
 
-      (NULL == CU_add_test(merch_test_suite,
-			   "Shelf exist test: Testing adding shelfs to a merch.\n",
-			   shelf_exist_test)) ||
+     (NULL == CU_add_test(merch_test_suite,
+			  "Create and Remove Merch: Creation and Deletion of merch",
+			  create_destroy_merch_test)) ||
+     (NULL == CU_add_test(merch_test_suite,
+			  "Construct Merch: Creation and Deletion of merch (empty location db) without adding to store.",
+			  create_merch_test_empty_locs)) ||
+
+     (NULL == CU_add_test(merch_test_suite,
+			  "Construct Merch: Creation and Deletion of merch (with location db) without adding to store.",
+			  create_merch_test_populated_locs)) ||
+
+     (NULL == CU_add_test(merch_test_suite,
+			  "Create and Remove Merch: Shelf correct creation, stock and deletion",
+			  create_destroy_merch_shelf_test)) ||
+
+     (NULL == CU_add_test(merch_test_suite,
+			  "Create and Remove Merch: Automatic deallocation of merch",
+			  create_autodestroy_merch_test)) ||
+
+     (NULL == CU_add_test(merch_test_suite,
+			  "Create Shelf: Creation of shelf.",
+			  create_shelf_test)) ||
+
+     (NULL == CU_add_test(merch_test_suite,
+			  "Shelf exist test: Testing adding shelfs to a merch.",
+			  shelf_exist_test)) ||
       
-      (NULL == CU_add_test(merch_test_suite,
-			   "Create Shelf: Creation of shelf.\n",
-			   destroy_all_merch_test)) ||
-      //      (NULL == CU_add_test(merch_test_suite,
-      //			   "Memory Management: Manual-deallocation of strings\n",
-			   //			   str_memory_management_system_manual_test)) ||
-      (NULL == CU_add_test(merch_test_suite,
-			   "Memory Management: Auto-deallocation of strings\n",
-			   str_memory_management_system_test))){
+     (NULL == CU_add_test(merch_test_suite,
+			  "Create Shelf: Creation of shelf.",
+			  destroy_all_merch_test)) ||
+     //      (NULL == CU_add_test(merch_test_suite,
+     //			   "Memory Management: Manual-deallocation of strings",
+     //			   str_memory_management_system_manual_test)) ||
+     (NULL == CU_add_test(merch_test_suite,
+			  "Memory Management: Auto-deallocation of strings",
+			  str_memory_management_system_test)) ||
+     (NULL == CU_add_test(merch_test_suite,
+			  "Add merchendise test",
+			  add_merchendise_test)) ||
 
-      CU_cleanup_registry();
-      return CU_get_error();
-    }
+     (NULL == CU_add_test(merch_test_suite,
+			  "Create and Remove Merch: Duplicate creation of merch",
+			  create_duplicate_merch_test)) ||
+
+     (NULL == CU_add_test(merch_test_suite,
+			  "Create and Remove Merch: Shelf correct creation, stock and deletion",
+			  add_to_storage_test)) ||
+
+
+     (NULL == CU_add_test(merch_test_suite,
+			  "Display banner",
+			  banner_end))
+     );
+
+  bool merch_api_test =
+    ((NULL == CU_add_test(merch_api_test_suite,
+			  "Display banner",
+			  banner_api_start)) ||
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function destroy_storage_test test",
+			  destroy_storage_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function display_test test",
+			  display_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function free_saved_strs_test test",
+			  free_saved_strs_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function free_str_test test",
+			  free_str_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function get_locations_test test",
+			  get_locations_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function get_merch_name_in_storage_test test",
+			  get_merch_name_in_storage_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function get_shelf_after_shelf_nr_test test",
+			  get_shelf_after_shelf_nr_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function increase_equal_stock_test test",
+			  increase_equal_stock_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function increase_stock_test test",
+			  increase_stock_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function is_saved_str_test test",
+			  is_saved_str_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function list_merchendise_test test",
+			  list_merchendise_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function list_shelfs_test test",
+			  list_shelfs_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function lookup_merch_name_test test",
+			  lookup_merch_name_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function merch_description_test test",
+			  merch_description_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function merch_in_stock_test test",
+			  merch_in_stock_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function merch_locs_test test",
+			  merch_locs_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function merch_stock_test test",
+			  merch_stock_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function merch_stock_on_shelf_test test",
+			  merch_stock_on_shelf_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function parse_args_test test",
+			  parse_args_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function print_merch_test test",
+			  print_merch_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function remove_from_stroage_test test",
+			  remove_from_stroage_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function remove_merchendise_test test",
+			  remove_merchendise_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function remove_name_from_shelf_test test",
+			  remove_name_from_shelf_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function remove_shelf_test test",
+			  remove_shelf_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function rename_merch_test test",
+			  rename_merch_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function save_str_test test",
+			  save_str_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function set_merch_description_test test",
+			  set_merch_description_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function set_merch_price_test test",
+			  set_merch_price_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function set_merch_stock_test test",
+			  set_merch_stock_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function set_shelf_test test",
+			  set_shelf_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function destroy_locs_test test",
+			  destroy_locs_test)) ||
+
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function show_stock_test test",
+			  show_stock_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function shelf_exists_test test",
+			  shelf_exists_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function storage_contains_test test",
+			  storage_contains_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function store_create_test test",
+			  store_create_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function store_destroy_test test",
+			  store_destroy_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function sync_merch_stock_test test",
+			  sync_merch_stock_test)) ||
+
+
+
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Function valid_index_test test",
+			  valid_index_test)) ||
+     (NULL == CU_add_test(merch_api_test_suite,
+			  "Display banner",
+			  banner_api_end)));
+
+  if (merch_api_test || merch_test){
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
 
   CU_basic_set_mode(CU_BRM_VERBOSE);
   
@@ -431,6 +1697,7 @@ int main()
   CU_cleanup_registry();
   return CU_get_error();
 }
+
 
 
 

@@ -50,7 +50,7 @@ void unicode_merch_menu(webstore_t *store){
   char command[10] = "";
 
   ENG(do {
-      puts("┏──╸Webstore ╺────────┓");
+      puts("┃ > Webstore    GPLv2🄯");
       puts("┃ [N]ew Merch         ┃");
       puts("┃ [R]emove Merch      ┃");
       puts("┃ [I]nspect Merch ID  ┃");

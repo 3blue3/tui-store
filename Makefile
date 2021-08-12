@@ -70,6 +70,12 @@ build_and_run_tests: clean_tests tests ui
 run_ui: ui
 	./bin/ui_demo.out
 
+run_ui: ui
+	./bin/ui_demo.out
+
+memcheck_ui: ui
+	valgrind --leak-check=full -s ./bin/ui_demo.out
+
 clean:
 	@printf "Running main.out... \n"	
 	rm ./bin/main.out

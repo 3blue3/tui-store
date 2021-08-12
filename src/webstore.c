@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1164,9 +1165,9 @@ bool sync_merch_stock(webstore_t *store, char *name){
       }
 
 
-        
+
     }
-    db_item = db_item->next;   
+    db_item = db_item->next;           
   } while (db_item != NULL);
     
 
@@ -1227,31 +1228,31 @@ size_t increase_stock(webstore_t *store, char *name,
   // Increase (or decrease) the stock at an existing
   // shelf. A negative (amount) decreases stock, positive
   // increases.  
-  if ((store == NULL) || (name == NULL) || (shelf_name == NULL)){
+  if ((!store) || (!name) || (!shelf_name)){
     perror("increase_stock: Unallowed NULL argument\n");
     return 0;
+    
   } else if (!ioopm_hash_table_has_key(store->merch_db,
 				       ptr_elem(name))){
     perror("increase_stock: Non existing merch.\n");
-    return 0;
+    exit(1);
 
   }else if (!ioopm_hash_table_has_key(store->storage_db,
 				      ptr_elem(shelf_name))){
     perror("increase_stock: Storage doesnt contain shelf.\n");
-    return 0;;
+    exit(1);
   }
+  
   // Add a specified amount of an item at a shelf.
   merch_t *merch_data =
-    get_elem_ptr(ioopm_hash_table_lookup(store->merch_db,
-					 ptr_elem(name)));  
+    get_elem_ptr(ioopm_hash_table_lookup(store->merch_db, ptr_elem(name)));
+
+  assert(merch_data); // 
+  
   // Get the current amount of the item on the shelf
-  size_t old_amount = merch_stock_on_shelf(store, name,
-					  shelf_name);
+  size_t old_amount = merch_stock_on_shelf(store, name, shelf_name);
   size_t new_amount = old_amount + (size_t)amount;
 
-  //  if (new_amount < 0){
-  //    perror("increase_stock: Storage amount cannot be negative.\n");
-  //  }
   // Update the shelf stock
   set_merch_stock(store, name, new_amount, shelf_name);
   // Update the total stock
@@ -1263,44 +1264,38 @@ size_t increase_stock(webstore_t *store, char *name,
 int count_loc_dep_stock(webstore_t *store){
   // [...]
 
-  if (!store){
-    perror("show_stock: Webstore is NULL.\n");
-    return 0;
-  }
+
+  assert(store);
+
   ioopm_list_t *shelfs = ioopm_hash_table_keys(store->storage_db);
 
-  if (!shelfs) {
-    perror("show_stock: No shelfs in storage database.\n");
-    return 0;
-  }
+  if (!shelfs) return 0;
 
-  ioopm_link_t *shelf = shelfs->first;
-  ioopm_link_t *name  = NULL;
-
+  ioopm_link_t *shelf  = shelfs->first;
+  ioopm_link_t *name   = NULL;
   char * current_shelf = NULL;
 
-  int total     = 1;     
-  do {
-    
+  int total = 1;     
+  while (shelf) {    
     if (get_elem_ptr(shelf->element)){
       current_shelf = get_elem_ptr(shelf->element);
       name          = get_locations(store, current_shelf)->first;
       
-      if (name) do {
+      if (name)
+        while (name) {
 
-	total++;
-	  	  
-	name          = name->next;	  
-      } while (name);
+          total++;
+          name = name->next;
+	}       
     }
     // Next shelf
-    shelf         = shelf->next;
-  } while (shelf != NULL);
+    shelf = shelf->next;
+  }
 
 
   ioopm_linked_list_destroy(shelfs);
-    return total;
 
+  return total;
 }
 
 void show_stock(webstore_t *store){
@@ -1314,14 +1309,12 @@ void show_stock(webstore_t *store){
   // <description>
   // [...]
 
-  if (store == NULL){
-    perror("show_stock: Webstore is NULL.\n");
-    return;
-  }
+  assert(store);
+  
   ioopm_list_t *shelfs = ioopm_hash_table_keys(store->storage_db);
 
   if (shelfs == NULL) {
-    perror("show_stock: No shelfs in storage database.\n");
+    printf("┃ > Empty\n\n");
     return;
   }
 
@@ -1329,52 +1322,45 @@ void show_stock(webstore_t *store){
   ioopm_link_t *name  = NULL;
 
   char * current_shelf = NULL;
-  char *current_name = NULL;
-  int current_stock  = 0;
-  int current_nr     = 1; 
+  char *current_name   = NULL;
+  int current_stock    = 0;
+  int current_nr       = 1; 
   
   do {
     if (get_elem_ptr(shelf->element)){
       current_shelf = get_elem_ptr(shelf->element);
 
-      name          = get_locations(store, current_shelf)->first;
+      name = get_locations(store, current_shelf)->first;
       if (name){
-	printf("|================= %s =================|\n", current_shelf);      
+	printf("┃ - %s -\n┃\n", current_shelf);      
       
 	do {
 	  current_name  = (char *)get_elem_ptr(name->element);
 	  current_stock = merch_stock_on_shelf(store, (char*)current_name,
 					       (char *)current_shelf);      
 	  if (current_stock > 0){
-	    printf("┏──╸Id.%d %s\n",
-		   current_nr, current_name); 
-
-	    //	printf("┃ Name: %s",      current_name);
-
-	
-
-	    printf("┃ Price: %dKr\n", merch_price(store, current_name));
-	    printf("┃ Stock: %dSt\n", current_stock);
-
-	    printf("┃ Desc: %s\n",    merch_description(store, current_name));
-	    puts("┗──╸");
+	    printf("┃ [%d] %s\n", current_nr, current_name); 
+	    printf("┃ > Price: %dKr\n", merch_price(store, current_name));
+	    printf("┃ > Stock: %dSt\n", current_stock);
+	    printf("┃ > Desc: %s\n",    merch_description(store, current_name));
+	    puts("┃");
+	    
 	    // Next Name
-	    current_nr += 1;	
-	  }else printf("| %s (No Stock)\n", current_name);
+	    current_nr += 1;
+	    
+	  }//else printf("| %s (No Stock)\n", current_name);
 	  
-	  name          = name->next;
+	  name = name->next;
 	  
-	} while (name != NULL);
+	} while (name);
       }
-    }
-    // Next shelf
-    shelf         = shelf->next;
-  } while (shelf != NULL);
+    }    // Next shelf
+    shelf = shelf->next;
+    
+  } while (shelf);
 
-
-    puts("");
+    puts("\n");
     ioopm_linked_list_destroy(shelfs);
-
 }
 
 char *get_merch_name_in_storage(webstore_t *store, int nr_merch){
@@ -1473,10 +1459,10 @@ bool valid_index(webstore_t *store, int index){
 
 
 void print_merch(merch_t *merch){
-  printf("┃ Item:          %s\n", merch->name);  
-  printf("┃ Description:   %s\n", merch->desc);
-  printf("┃ Price:         %ld\n",merch->price);
-  printf("┃ Stock (Total): %ld\n", merch->total_amount);
+  printf("┃ > Item:          %s\n", merch->name);  
+  printf("┃ > Description:   %s\n", merch->desc);
+  printf("┃ > Price:         %ld\n",merch->price);
+  printf("┃ > Stock (Total): %ld\n", merch->total_amount);
 }
 
 /// Other

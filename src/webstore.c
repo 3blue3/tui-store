@@ -272,19 +272,27 @@ bool save_str(webstore_t *store, char *str_ptr){
 //  
 //  return false;
 //}
-bool is_saved_str(webstore_t *store, char *str){
-  // Free all saved strings 
+
+// is_saved_str(store, str)
+// Check if a `str' is saved in the heap list in `store'
+// returns: True if `str' is saved else False
+bool is_saved_str(webstore_t *store, char *str){  
+
+  if (!store->heap_strs)
+    return false;
+  else if (!store->heap_strs->first) 
+    return false;
+  else if (!str) return false;
+
   ioopm_link_t *heap_strs = store->heap_strs->first;  
-  // Id already freed, return
-  // Iterate through all strings freeing them
+
   while (heap_strs) {
+    char *str_ptr = (char*)(get_elem_ptr(heap_strs->element));
 
-    char *str_ptr = (get_elem_ptr(heap_strs->element));
-    if (STR_EQ(str, str_ptr)) return true;
-    heap_strs = heap_strs->next;           
-
+    if (STR_EQ(str, str_ptr)) 
+      return true;
+    else heap_strs = heap_strs->next;           
   }
-
   return false;
 }
 
@@ -312,25 +320,60 @@ void free_saved_strs(webstore_t *store){
 
 
 void free_str_fun(elem_t elem, void *str_match) {
-  char *str = get_elem_ptr((char*)elem);
+  char *str = (char*)get_elem_ptr(elem);
   if (STR_EQ(str, str_match)){
     free(str);
+    str = NULL;
   }  
 }
 
-bool free_str(webstore_t *store, char *str_cmp){
-  // Free all saved strings 
+
+bool free_str(webstore_t *store, char * value) /// BAH
+{
+  ioopm_list_t *list = store->heap_strs;
   
+  if (list->size == 0) false;
+  
+  ioopm_link_t *link = list->first;
 
-  ioopm_linked_apply_to_all(store->heap_strs, (ioopm_apply_char_function)free_str_fun,(void *)str_cmp);
+  while (link != NULL)
+    {
+      if (STR_EQ( (char *)get_elem_ptr(link->element) , value)){
+	char *match = (char *)get_elem_ptr(link->element);
+	free(match);
+        link->element = ptr_elem(NULL); // NULL PTR
 
-  if (store->heap_strs->first == NULL){
-    ioopm_linked_list_destroy(store->heap_strs);
-    store->heap_strs = NULL;
-    return true;
-  }
-  return false;
+        return true;
+	  } else link = link->next;
+      
+    }
+
+
+    return false;
 }
+//bool free_str(webstore_t *store, char *str_cmp){
+//  // Free all saved strings 
+//
+//  // Unallocated webstore or shelf database
+//  if (store->storage_db == NULL)                              return false;
+//  else if ((!store->heap_strs) || (!store->heap_strs->first))   return false;
+//  
+//  ioopm_list_t *list = store->heap_strs;
+//  ioopm_linked_list_contains(list, ptr_elem(str_cmp));
+//
+//
+//  for (size_t i = 1; i <= ioopm_linked_list_size(list); i++){
+//    char *current = (char *)get_elem_ptr(ioopm_linked_list_get(list, i));
+//    printf ("Current: %s\nLooking for: %s\n\n", current, str_cmp);
+//    
+//    if (STR_EQ(current, str_cmp)){
+//      ioopm_linked_list_remove(list, i);
+//      return true;
+//    }
+//    }
+//
+//  return false;
+//  }
 
 // change merch on shelf
 bool shelf_exists(webstore_t *store, char *shelf){
@@ -358,7 +401,6 @@ void set_merch_stock(webstore_t *store, char *name,
     perror("set_merch_stock: Non existing merch.\n");
     return; 
   }
-
   // Extract location database bound to name
   elem_t elem_data =
     ioopm_hash_table_lookup(store->merch_db,
@@ -643,11 +685,6 @@ webstore_t *store_create(){
     new_webstore->heap_strs = 
     ioopm_linked_list_create();
   
-  // Default to cart index 0 as active
-  new_webstore->active_cart = 0;
-
-  // Append the first cart to the store
-  append_cart(new_webstore);
   
   //ioopm_linked_list_append(new_webstore->all_shopping_carts,
   //			   ptr_elem(create_cart(new_webstore)));
@@ -995,29 +1032,23 @@ void remove_shelf(webstore_t *store, char *shelf){
 
 void destroy_storage(webstore_t *store){
   // Remove all shelfs in storage_db, but not the hash-table.
-  if (store == NULL){
-    perror("destroy_storage: Webstore is NULL\n");
-    return;
-  }
-  if (store->storage_db == NULL){
-    perror("destroy_all_merch: Storage DB already free'd.\n");
-    return;
-  }
-
+  if (store == NULL) return;  
+  else if  (!store->storage_db) return;
+  
  ioopm_list_t *shelfs  = ioopm_hash_table_keys(store->storage_db);
  ioopm_link_t *current = shelfs->first;
  
- if (current == NULL){
+ if (!current){
    perror("destroy_storage:  Storage db is NULL.\n");
    ioopm_linked_list_destroy(shelfs); 
    return;
  }
 
  // Iterate all shelfs removing them
- do {  
+ while (current) {  
    remove_shelf(store, get_elem_ptr(current->element));
    current = current->next;
- } while (current != NULL);
+ } 
 
   ioopm_linked_list_destroy(shelfs); 
 }

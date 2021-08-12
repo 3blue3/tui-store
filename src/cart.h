@@ -186,4 +186,13 @@ void sort_keys(entry_ht_t *keys, size_t no_keys);
 Return true if a cart with id; id exists in the database.
 */
 bool cart_id_exists(webstore_t *store, int id);
+
+
+/*
+Return the largest id of all existing carts in store
+ */
+int get_largest_cart_id(webstore_t *store);
+
 #endif
+
+

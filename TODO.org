@@ -1,6 +1,39 @@
 Ref: https://wrigstad.com/ioopm/assignments/assignment2.html
 
-* Frontend Actions [3/6]
+
+
+
+
+
+
+
+Problems:
+ - Merch ::
+   + [-] Removing last item leaves (no stock)
+   + [ ] Cannot edit name of some merch
+
+ - Cart ::
+   + [ ] Cannot checkout
+   + [ ] Removing the lowest cart id with other cart ids over it ends
+         up with a no cart (Should be the next avail cart)
+   + [ ] Double check memory leaks in cart code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+* * Frontend Actions [3/6]
  - [X] New Merch [3/3]
    - [X] Price [2/2]
      - [X] Too Large

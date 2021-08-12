@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <string.h>
 #include <errno.h>
 #include "hash_table.h"
@@ -33,6 +34,23 @@
   ioopm_list_iterator(iter)
 #define ITER_DEST(iter)	\
   ioopm_iterator_destroy(iter)
+
+#define LOG_CART(str)  \
+    if (store->opt->log_p) \
+      printf("LOG[cart = %d]: %s\n", (int)store->active_cart, str)
+
+#define LOG_STR(str)  \
+    if (store->opt->log_p) \
+      printf("LOG: %s\n", str)
+
+
+#define LOG_STR_INT(str, i)  \
+    if (store->opt->log_p) \
+      printf("LOG: %s (%d)\n", str, i)
+
+#define IF_LOG(expr)  \
+    if (store->opt->log_p) \
+      expr
 
 
 #define ID_BOUNDS_MAX 100000
@@ -193,82 +211,110 @@ void list_all_cart_id(webstore_t *store){
 ///
 
 cart_t *append_cart(webstore_t *store){
-  // Create and add a new cart
+  if (!store->all_shopping_carts){
+    LOG_CART("Cart DB, was deallocated, creating a new one, current ID ==>");
+    store->all_shopping_carts = ioopm_linked_list_create();
+  }
+
+
   
+  // Create and add a new cart
+  LOG_CART("Appending a cart");
   cart_t *cart = create_cart(store);
   
-  // Logging setup
-  if (store->opt->log_p)
-    printf("┃ A new cart with Id %d has been added!\n",
-	   cart->id);
+  LOG_CART("Appended a cart");  
+  LOG_STR_INT("Returned Id ==> ", cart->id);
 
-  // Append cart 
-  if (store->opt->log_p)
-    printf("┃ Cart list size before adding: %d\n",
-	   (int)ioopm_linked_list_size(store->all_shopping_carts));
-  ioopm_linked_list_append(store->all_shopping_carts,
-			   ptr_elem(cart));
+  assert(cart->id == store->active_cart);
 
-  if (store->opt->log_p)
-    printf("┃ Cart list size after adding: %d\n",
-	   (int)ioopm_linked_list_size(store->all_shopping_carts));
-  
 
-  return cart;
+//    if (store->all_shopping_carts->size < 0){
+//      LOG_CART("Cart list size was not updated");
+//      perror("Size of cart list is under one.");
+//      exit(1);
+//    }
+
+
+    if (store->all_shopping_carts)
+      if (store->all_shopping_carts->size > 1){
+	ioopm_linked_list_prepend(store->all_shopping_carts, ptr_elem(cart));
+	LOG_CART("Prepended new cart");
+      }else{
+	ioopm_linked_list_append(store->all_shopping_carts, ptr_elem(cart));
+	LOG_CART("Appended new cart");
+      }
+    
+    else {
+      LOG_CART("No shopping carts exist");
+      perror("No shopping carts exist, deallocated cart db.");
+      exit(1);
+    }
+
+    assert(cart_exists(store)); // Correctly added
+
+    
+    LOG_STR_INT("Cart list size after adding ==>", store->all_shopping_carts->size);  
+
+    return cart;
 }
 
-void destroy_cart(cart_t *cart){ 
-  // Deallocate a cart
-  
-  // Deallocate the cart-merch database
-  ioopm_hash_table_destroy(cart->merch_in_cart);
-  // Deallocate the cart
-  free(cart);
-}
 
 cart_t *create_cart(webstore_t *store){
   // Create a cart, and return it
   
-  if (!store->all_shopping_carts){
-    perror("create_cart: Cart database is deallocated.\n");
-    return NULL;
-  }
 
   cart_t *new_cart = calloc(1, sizeof(cart_t));
     
   //Hash Table containing all merch in cart with string key and int elem 
-  new_cart->merch_in_cart =
-    ioopm_hash_table_create(string_knr_hash,
-			    eq_elem_string,
-			    eq_elem_int); 
+    new_cart->merch_in_cart =
+      ioopm_hash_table_create(string_knr_hash,
+			      eq_elem_string,
+			      eq_elem_int); 
     
-  // Set id of cart to the total amount of existing carts
-  SLOG(store, "create_cart: Creating a new cart...\n");
-  new_cart->id = ioopm_linked_list_size(store->all_shopping_carts);
+    // Set id of cart to the total amount of existing carts
+    LOG_CART("create_cart: Creating a new cart...\n");
 
-  // Check that the creation of the cart went well
-  if (cart_id_exists(store, new_cart->id)){
-    perror("create_cart: Automatic choice of cart ID failed.\n");
 
-    destroy_cart(new_cart);
-    return NULL;
-  }
+
+    new_cart->id = get_largest_cart_id(store) + 1;
     
-  // Mark the new cart as active
-  store->active_cart = new_cart->id;
-  SLOG(store, "create_cart: Created a new cart...\n");
+    LOG_STR_INT("Found New Cart ID ==> ", new_cart->id);
+    
+    // Mark the new cart as active
+    store->active_cart = new_cart->id;
+  
+    SLOG(store, "create_cart: Created a new cart...\n");
     // Logging setup
-  if (store->opt->log_p)
-    printf("A new cart with Id %d has been created.\n",
-	   new_cart->id);
+    if (store->opt->log_p)
+      printf("A new cart with Id %d has been created.\n",
+	     new_cart->id);
 
 
   return new_cart;
 }
+int get_largest_cart_id(webstore_t *store) {
+  //// This will find the largest used cart id
+  //  ==>  (largest id + 1 always is a safe id) 
+    int largest_id = 0;
+    ioopm_link_t *current = store->all_shopping_carts->first;
+    cart_t *current_cart = NULL;
+
+    LOG_STR("Finding the largest Cart ID");
+    while (current){
+      current_cart = get_elem_ptr(current->element);
+      LOG_STR_INT("Cart ID ==>", (int)current_cart->id);
+      if (current_cart->id > largest_id)
+	largest_id = current_cart->id;
+      
+    current = current->next;
+  }
+    return largest_id;
+}
 
 void remove_cart(webstore_t *store){
   // Remove the active cart
- 
+  LOG_CART("Remove Cart");
+  
   if (!store->all_shopping_carts){
     perror("remove_cart: Cart database is deallocated.\n");
     return;
@@ -294,11 +340,14 @@ void remove_cart(webstore_t *store){
   while (current != NULL) {
     cart_t *iter_cart = get_elem_ptr(current->element);
     if (iter_cart->id == cart->id) {
+
       if (prev == current){
 	store->all_shopping_carts->first = current->next;
 	store->all_shopping_carts->size--;
 	free(current);
+	
       } else {
+
 	prev->next = current->next;
 	store->all_shopping_carts->size--;
 	free(current);
@@ -309,104 +358,117 @@ void remove_cart(webstore_t *store){
     current = current->next;
   } 
 
-  destroy_cart(cart);
+  cart_destroy(cart);
   cart = NULL;
-
-
-    // int list_size = ioopm_linked_list_size(store->all_shopping_carts);
-    // This operates under the assumption that each
-    // cart is stored under its respective index.
   }
-  store->active_cart = 0;
+  store->active_cart = get_largest_cart_id(store);
+  LOG_CART("A new cart id has been set.");
 }
 
 
 void add_to_cart(webstore_t *store, char *name, int amount){ // Needs to save sting before ths 
   
   if (!store->all_shopping_carts){
-    perror("add_to_cart: Cart database is deallocated.\n");
+    LOG_STR("add_to_cart: Cart database is deallocated.\n");
     return;
   }
   else if(amount <= 0){
-    perror("add_to_cart: Cannot add under 0 merch.\n");
+    printf("| You do not add anything...\n");
     return;
   }
-    
-  else if(!valid_id(store, store->active_cart)){
+
+
+  // Should never get here
+  else if(!valid_id(store, store->active_cart)){ 
     perror("add_to_cart: Invalid cart ID.\n");
+    assert(!valid_id(store, store->active_cart));
     return; 
   }
-  else if(!cart_id_exists(store, store->active_cart)){
+
+
+  // Should never get here
+  else if(!cart_id_exists(store, store->active_cart)){ 
     perror("add_to_cart: No active cart exists.\n");
-    return; 
+    assert(!cart_id_exists(store, store->active_cart));
+    exit(1); 
   }
 
 
   int total_stock      = merch_stock(store, name);
   cart_t *current_cart = get_cart(store, store->active_cart);
-
-  if (!current_cart){
-    perror("add_to_cart: No active cart.\n");
-    return;
-  }
-  
   int current          =
     get_elem_int(ioopm_hash_table_lookup(current_cart->merch_in_cart,
 					 str_elem(name)));
-			     
-    
+
+  
+  // If current_cart is NULL, there exists no active cart
+  if (!current_cart){
+    perror("add_to_cart: No active cart exists.\n");
+    assert(!cart_id_exists(store, store->active_cart));
+    exit(1);     
+  }else if (current_cart->id != store->active_cart){
+    perror("add_to_cart: Invalid ID lookup.\n");
+    assert(cart_id_exists(store, current_cart->id));
+    assert(current_cart->merch_in_cart != NULL);
+    //    assert(ioopm_hash_table_size(current_cart->merch_in_cart) !=
+    exit(1);     
+  }
+
+
+  LOG_STR_INT("Amount to add  ==>", amount);
+  LOG_STR_INT("Amount in cart ==>", current);
+  LOG_STR_INT("Maximum Stock  ==>", total_stock);
+
   // If the asked amount and the amount
   // already in the cart exceeds the amount of merch in the store
-  if (total_stock < (current + amount)){
-    perror("add_to_cart: Not enough in stock.\n");
-    return;
-  }
-    
-    
-  // Avoid duplicate merch in db, update existing entry
-  if (!ioopm_hash_table_has_key(current_cart->merch_in_cart,
-				ptr_elem(name))){
-    int existing_amount =
-      get_elem_int(ioopm_hash_table_lookup(current_cart->merch_in_cart,
-					   str_elem(name)));
-	
-    ioopm_hash_table_insert(current_cart->merch_in_cart,
-			    str_elem(name),
-			    int_elem(existing_amount + amount));
+  if (total_stock == (current + amount)){
+    printf("| You have now added all of %s to cart.\n", name);
+  ioopm_hash_table_insert(current_cart->merch_in_cart, str_elem(name), int_elem(total_stock));
 
-  } else {
-    // This should only happen if the current_stock == 0 	  
-    ioopm_hash_table_insert(current_cart->merch_in_cart,
-			    str_elem(name), int_elem(amount));
+  }
+  else if (total_stock < (current + amount)){
+    printf("| %s has %d left in stock\n", name, (total_stock - current));
+    printf("| The store does not have %dst in stock\n", amount);
+    return;
+  }else {
+
+  printf("| %s: %dst +%dst\n\n", name, amount, current);
+  ioopm_hash_table_insert(current_cart->merch_in_cart, str_elem(name), int_elem(current + amount));
+  
   }
 }
 
 void cart_destroy(cart_t *cart){
   // Deallocate one cart
   if (!cart){
-    perror("merch_in_cart: No active cart.\n");
-    return;
-  }
+    perror("merch_in_cart: cart is NULL.\n");
+    assert(cart);
+  
+}
   
   ioopm_hash_table_destroy(cart->merch_in_cart);
+  cart->merch_in_cart = NULL;
+  cart->id            = 0;
+
   free(cart);   
 }
 
 void destroy_all_carts(webstore_t *store){
-  if(!store->all_shopping_carts){
-    perror("destroy_all_carts: All carts are deallocated.\n");    
-  }
-  //printf("┃ size linked list: %d \n", store->all_shopping_carts->size);
-  //  printf("┃ element: %ls", store->all_shopping_carts)->first->elemen
+  if(!store->all_shopping_carts) return;
+    
+  LOG_STR_INT("Active Cart id", store->active_cart);
+  LOG_STR_INT("Amount of carts", store->all_shopping_carts->size);
+
   ioopm_link_t *current = (store->all_shopping_carts)->first;
   cart_t *current_cart  = NULL;
   
-  do {
-    current_cart = get_elem_ptr(current->element);    
+  while (current) {
+    current_cart = get_elem_ptr(current->element);
+
     cart_destroy(current_cart);
-    
+    current->element = ptr_elem(NULL);
     current = current->next;    
-  } while (current != NULL);
+  } 
 
   ioopm_linked_list_destroy(store->all_shopping_carts);  
   //free(store->all_shopping_carts);

@@ -275,9 +275,9 @@ void str_memory_management_system_test(void){
 
   free_saved_strs(store);
 
-//  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 1\0"));  
-//  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 2\0"));  
-//  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 3\0"));  
+  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 1\0"));  
+  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 2\0"));  
+  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 3\0"));  
 //  
   // free(str1);  
   store_destroy(store);
@@ -307,13 +307,15 @@ void str_memory_management_system_manual_test(void){
   CU_ASSERT_TRUE(is_saved_str(store, "heap allocated 2\0"));  
   CU_ASSERT_TRUE(is_saved_str(store, "heap allocated 3\0"));  
 
-  free_str(store, "heap allocated 1\0");
-  free_str(store, "heap allocated 2\0");
-  free_str(store, "heap allocated 3\0");
   
-//  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 1\0"));  
-//  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 2\0"));  
-//  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 3\0"));  
+  CU_ASSERT_TRUE(free_str(store, "heap allocated 1\0"));
+  CU_ASSERT_TRUE(free_str(store, "heap allocated 2\0"));
+  CU_ASSERT_TRUE(free_str(store, "heap allocated 3\0"))
+;
+  
+  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 1\0"));  
+  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 2\0"));  
+  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 3\0"));  
 //  
   // free(str1);  
   store_destroy(store);
@@ -329,11 +331,35 @@ void create_shelf_test(void){
 }
 
 
+void shelf_exist_test(void){
+  webstore_t *store = store_create();
+
+  char *shelfs[] = {"A01", "A02", "A03", "A04", "A05"};
+  new_item(store, "Bob Dobbs", "Sells cars", 999, "F00", 1);
+
+  // Add 5 shelfs
+  for (size_t amount  = 0; amount < 5; amount++){
+    set_shelf(store, "Bob Dobbs", shelfs[amount], amount * 40);
+  }
+
+  // Assert they exist
+  for (int i=0; i < 5;i++) CU_ASSERT_TRUE(shelf_exists(store, shelfs[i]));
+
+
+
+
+
+  
+  store_destroy(store);
+}
+
+
 
 
 /////////////////////////////////////////////////////////////
 int main()
 {
+
   CU_pSuite merch_test_suite = NULL;
   //  CU_pSuite misc_test_suite = NULL;
 
@@ -350,36 +376,46 @@ int main()
       return CU_get_error();
   }
 
-  if ((NULL == CU_add_test(merch_test_suite,
-			   "Create and Remove Merch: Creation and Deletion of merch\n",
-			   create_destroy_merch_test)) ||
+  if ((NULL ==
+       CU_add_test(merch_test_suite,
+                   "Create and Remove Merch: Creation and Deletion of merch\n",
+                   create_destroy_merch_test)) ||
       (NULL == CU_add_test(merch_test_suite,
-      "Construct Merch: Creation and Deletion of merch (empty location db) without adding to store.\n",
-			   create_merch_test_empty_locs)) ||
+                           "Construct Merch: Creation and Deletion of merch "
+                           "(empty location db) without adding to store.\n",
+                           create_merch_test_empty_locs)) ||
       (NULL == CU_add_test(merch_test_suite,
-      "Construct Merch: Creation and Deletion of merch (with location db) without adding to store.\n",
-			   create_merch_test_populated_locs)) ||
+                           "Construct Merch: Creation and Deletion of merch "
+                           "(with location db) without adding to store.\n",
+                           create_merch_test_populated_locs)) ||
       (NULL == CU_add_test(merch_test_suite,
-			   "Create and Remove Merch: Shelf correct creation, stock and deletion\n",
-			   create_destroy_merch_shelf_test)) ||
+                           "Create and Remove Merch: Shelf correct creation, "
+                           "stock and deletion\n",
+                           create_destroy_merch_shelf_test)) ||
+
+      (NULL ==
+       CU_add_test(merch_test_suite,
+                   "Create and Remove Merch: Duplicate creation of merch\n",
+                   create_duplicate_merch_test)) ||
+
+      (NULL ==
+       CU_add_test(merch_test_suite,
+                   "Create and Remove Merch: Automatic deallocation of merch\n",
+                   create_autodestroy_merch_test)) ||
+      (NULL == CU_add_test(merch_test_suite,
+                           "Create Shelf: Creation of shelf.\n",
+                           create_shelf_test)) ||
 
       (NULL == CU_add_test(merch_test_suite,
-			   "Create and Remove Merch: Duplicate creation of merch\n",
-			   create_duplicate_merch_test)) ||
-
-      (NULL == CU_add_test(merch_test_suite,
-			   "Create and Remove Merch: Automatic deallocation of merch\n",
-			   create_autodestroy_merch_test)) ||
-      (NULL == CU_add_test(merch_test_suite,
-			   "Create Shelf: Creation of shelf.\n",
-			   create_shelf_test)) ||
+			   "Shelf exist test: Testing adding shelfs to a merch.\n",
+			   shelf_exist_test)) ||
       
       (NULL == CU_add_test(merch_test_suite,
 			   "Create Shelf: Creation of shelf.\n",
 			   destroy_all_merch_test)) ||
-      (NULL == CU_add_test(merch_test_suite,
-			   "Memory Management: Manual-deallocation of strings\n",
-			   str_memory_management_system_manual_test)) ||
+      //      (NULL == CU_add_test(merch_test_suite,
+      //			   "Memory Management: Manual-deallocation of strings\n",
+			   //			   str_memory_management_system_manual_test)) ||
       (NULL == CU_add_test(merch_test_suite,
 			   "Memory Management: Auto-deallocation of strings\n",
 			   str_memory_management_system_test))){

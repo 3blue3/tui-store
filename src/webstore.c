@@ -1164,8 +1164,10 @@ bool sync_merch_stock(webstore_t *store, char *name){
       }
 
 
-    db_item = db_item->next;           
-    }} while (db_item != NULL);
+        
+    }
+    db_item = db_item->next;   
+  } while (db_item != NULL);
     
 
   ///  merch_data->total_amount = new_amount;

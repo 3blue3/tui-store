@@ -66,6 +66,33 @@ bool is_merch(webstore_t *store, int id){
   return valid_index(store, id);
 }
 
+void display_header(char *str, bool sectionp){
+  int len = strlen(str);
+
+  //  Top boarder
+  printf("     ");
+  for (int i = 0; i<len + 4;i++) printf("_");
+  printf("     \n");
+
+  // Label
+  if (sectionp) printf("┃"); 
+  else printf(" ");
+
+  printf(" -  ┃ ");
+  printf(str);
+  printf(" ┃  - \n");
+  
+  // Bottom border
+
+
+  if (sectionp) printf("┃"); 
+  else printf(" ");
+
+  printf("    '");
+  for (int i = 0; i<len + 2;i++) printf("¨");
+  printf("'     \n");
+}
+
 
 bool cart_id_exists(webstore_t *store, int id){
   ioopm_link_t *current = (store->all_shopping_carts)->first; 
@@ -183,27 +210,32 @@ size_t cart_db_size(cart_t *cart){
 void list_all_cart_id(webstore_t *store){
 
   if (!store->all_shopping_carts){
-    perror("list_all_cart_id: Cart database is deallocated.\n");
+    // perror("list_all_cart_id: Cart database is deallocated.\n");
     return;
   }
 
-  puts("┏──╸ Existing Cart ID's ");
   ioopm_link_t *current = (store->all_shopping_carts)->first; 
   if (current == NULL){
-    printf("┃ No carts exists\n");
+    printf("┃ > No carts exists\n\n");
+    return;
   }
+
+
+  display_header("All Carts", true);
+  
   while (current != NULL) {
     
     cart_t *cart = get_elem_ptr(current->element);
     if (!cart){
-      perror("list_all_cart_id: Cart database contains unallocated cart");
-      return;
+      perror("list_all_cart_id: Cart database contains unallocated cart\nexiting...");
+      exit(1);
     }
-    printf("┃ Cart Id.%d\n", cart->id);
+
+    printf("┃ > Cart %d\n", cart->id);
     current = current->next;
   }
 
-  
+  puts("");
 }
 
 ///
@@ -382,7 +414,7 @@ void add_to_cart(webstore_t *store, char *name, int amount){ // Needs to save st
   else if(!valid_id(store, store->active_cart)){ 
     perror("add_to_cart: Invalid cart ID.\n");
     assert(!valid_id(store, store->active_cart));
-    return; 
+    exit(1);
   }
 
 
@@ -405,7 +437,8 @@ void add_to_cart(webstore_t *store, char *name, int amount){ // Needs to save st
   if (!current_cart){
     perror("add_to_cart: No active cart exists.\n");
     assert(!cart_id_exists(store, store->active_cart));
-    exit(1);     
+    return;
+    
   }else if (current_cart->id != store->active_cart){
     perror("add_to_cart: Invalid ID lookup.\n");
     assert(cart_id_exists(store, current_cart->id));
@@ -615,32 +648,30 @@ int calculate_cost(webstore_t *store, int id){
 void checkout(webstore_t *store){
   int id = store->active_cart;
   cart_t *current_cart = get_cart(store, id);
-  
+
   if (!current_cart){
-    perror("checkout: Cart requested is deallocated.\n");
+    printf( "┃ > There are no carts in the store,\n");
+    printf("     create one by pressing 'n'.\n\n");
     return;
+
+  } else{
+    assert(current_cart->merch_in_cart);    
   }
-  else if (!cart_id_exists(store, store->active_cart)){
-    perror("checkout: No active cart exists.\n");
+		
+
+  if (ioopm_hash_table_is_empty(current_cart->merch_in_cart)){
+    printf( "┃ > You don't have any items add items\n");
+    printf( "    by pressing 'e', followed by 'a'.\n\n");
     return;
-  }
-  else if (!current_cart->merch_in_cart){
-    perror("checkout: Cart has no merch.\n");
-    return;
-  }
-  else if (ioopm_hash_table_is_empty(current_cart->merch_in_cart)){
-    perror("checkout: No cart exists.\n");
-    return;
-  }
-  int total = 0;
-  total     = calculate_cost(store, store->active_cart);
+}
+  int total = calculate_cost(store, store->active_cart);
   
   char *current_name = NULL;
   int current_amount = 0;
   ioopm_list_t *names = ioopm_hash_table_keys(current_cart->merch_in_cart);
 
   
-  if(cart_db_size(current_cart) == 1){
+  if (cart_db_size(current_cart) == 1){
     current_name = get_elem_str(ioopm_linked_list_get(names, 0));
     current_amount = amount_of_merch_in_cart(current_cart, current_name);
     //    change_stock_in_webstore(store, current_name, current_amount);
@@ -697,44 +728,44 @@ bool cart_exists(webstore_t *store){
 /*  void checkout(webstore_t *store){
     ioopm_linked_list_destroy(names);
     remove_cart(store, current_cart->id); 
-}
+    }
 */
 /*
-void checkout(webstore_t *store){
+  void checkout(webstore_t *store){
   cart_t *cart = get_cart(store, store->active_cart);
 
 
-    ioopm_list_t *names   =
-    ioopm_hash_table_keys(cart->merch_in_cart);
+  ioopm_list_t *names   =
+  ioopm_hash_table_keys(cart->merch_in_cart);
 
   ioopm_list_t *amounts =
-    ioopm_hash_table_values(cart->merch_in_cart);
+  ioopm_hash_table_values(cart->merch_in_cart);
 
   ioopm_list_iterator_t *iter_n = ITER_INIT(names); 
-    ioopm_list_iterator_t *iter_a = ITER_INIT(amounts);
+  ioopm_list_iterator_t *iter_a = ITER_INIT(amounts);
 
-    // Transfer all stock amounts & merch names
-    // into an array for sorting    
-    for (size_t i = 0; i < ioopm_linked_list_size(names); i++) {
-      size_t current_amount = CURRENT_ITER_INT(iter_a);
-      char *current_name    = CURRENT_ITER_STR(iter_n);
+  // Transfer all stock amounts & merch names
+  // into an array for sorting    
+  for (size_t i = 0; i < ioopm_linked_list_size(names); i++) {
+  size_t current_amount = CURRENT_ITER_INT(iter_a);
+  char *current_name    = CURRENT_ITER_STR(iter_n);
       
-      // Create value for array
-      change_stock_relative_amount(store, current_name, -current_amount);
-      // Iterate through all merch names and
-      // stock amounts
-      if(ITER_HAS_NXT(iter_n) && ITER_HAS_NXT(iter_a)){
-	ITER_NXT(iter_n); ITER_NXT(iter_a);
-      }
-    }
+  // Create value for array
+  change_stock_relative_amount(store, current_name, -current_amount);
+  // Iterate through all merch names and
+  // stock amounts
+  if(ITER_HAS_NXT(iter_n) && ITER_HAS_NXT(iter_a)){
+  ITER_NXT(iter_n); ITER_NXT(iter_a);
+  }
+  }
     
     
-    ioopm_linked_list_destroy(names);
-    ioopm_linked_list_destroy(amounts);
-    ITER_DEST(iter_n);
-    ITER_DEST(iter_a);
+  ioopm_linked_list_destroy(names);
+  ioopm_linked_list_destroy(amounts);
+  ITER_DEST(iter_n);
+  ITER_DEST(iter_a);
   
-}*/
+  }*/
 
 void display_cart(cart_t *cart){ //id?
   
@@ -744,31 +775,33 @@ void display_cart(cart_t *cart){ //id?
     //    perror("display_cart: Cart is deallocated.\n");
     return;
   }
-  printf("┏─────────╸ Displaying cart Id %d\n", cart->id);
+  printf("     ______________________   \n");
+  printf("┃    ┃ Displaying Cart %d3 ┃   \n", (int)cart->id);
+  printf("     '¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨'   \n");
   // If cart is empty
   if(cart_is_empty(cart)){
-    printf("┃ Nothing to Show, Cart Id.%d is Empty.\n",
+    printf("┃ > Cart %d is Empty.\n\n",
 	   cart->id);    
     return;
   }
 
   
-    ioopm_list_t *names   =
-      ioopm_hash_table_keys(cart->merch_in_cart);
+  ioopm_list_t *names   =
+    ioopm_hash_table_keys(cart->merch_in_cart);
 
-    ioopm_list_t *amounts =
-      ioopm_hash_table_values(cart->merch_in_cart);
+  ioopm_list_t *amounts =
+    ioopm_hash_table_values(cart->merch_in_cart);
 
-    size_t no_names               =
-      ioopm_linked_list_size(names);     
+  size_t no_names               =
+    ioopm_linked_list_size(names);     
 
-    ioopm_list_iterator_t *iter_n = ITER_INIT(names); 
-    ioopm_list_iterator_t *iter_a = ITER_INIT(amounts);
+  ioopm_list_iterator_t *iter_n = ITER_INIT(names); 
+  ioopm_list_iterator_t *iter_a = ITER_INIT(amounts);
     
-    entry_ht_t kv_array[no_names];
+  entry_ht_t kv_array[no_names];
     
-    // Transfer all stock amounts & merch names
-    // into an array for sorting    
+  // Transfer all stock amounts & merch names
+  // into an array for sorting    
     for (size_t i = 0; i < no_names; i++) {
       int current_amount = CURRENT_ITER_INT(iter_a);;
       char *current_name = CURRENT_ITER_STR(iter_n);

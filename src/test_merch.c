@@ -1,3 +1,4 @@
+#include <CUnit/CUnit.h>
 #include <string.h>
 #include <stdio.h> 
 #include <stdbool.h>
@@ -25,6 +26,8 @@ int clean_suite(void){
 void test(){
     CU_ASSERT_TRUE(true);
 }
+
+#define STREQ(a, b) strcmp((char *)a, (char *)b) == 0)
 
 
 
@@ -103,10 +106,16 @@ void destroy_storage_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  CU_ASSERT_TRUE(shelf_exists(store, "A01"));
+  CU_ASSERT_TRUE(shelf_exists(store, "A10"));
+  CU_ASSERT_TRUE(shelf_exists(store, "D21"));
+
   destroy_storage(store);
+
   CU_ASSERT_FALSE(shelf_exists(store, "A01"));
   CU_ASSERT_FALSE(shelf_exists(store, "A10"));
   CU_ASSERT_FALSE(shelf_exists(store, "D21"));
+
   store_destroy(store);
 
   CU_ASSERT_TRUE(true);
@@ -129,6 +138,10 @@ void display_test(void){
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+  display_shelf(store, "A01");
+  display_shelf(store, "A10");
+  display_shelf(store, "D21");
 
 
   store_destroy(store);
@@ -154,39 +167,13 @@ void free_saved_strs_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
-
+  free_saved_strs(store);
+  
   store_destroy(store);
-
-
 
   CU_ASSERT_TRUE(true);
 }
-void free_str_test(void){
-  webstore_t *store = store_create();
 
-//  | Merch      | Shelf  | Amount | 
-//  | Ferarri    | A01    | 3      |
-//  | apple      | A10    | 1	   | 
-//  | pear       | A10    | 321	   | 
-//  | orange     | D21    | 123	   | 
-  
-  save_str(store, strdup("Ferarri"));
-  save_str(store, strdup("Merci"));
-  
-  
-  
-  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
-  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
-  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
-  new_item(store, "orange", "a fruit", 14, "D21", 123);
-
-
-  store_destroy(store);
-
-
-
-  CU_ASSERT_TRUE(true);
-}
 void get_locations_test(void){
   webstore_t *store = store_create();
 
@@ -196,17 +183,34 @@ void get_locations_test(void){
 //  | pear       | A10    | 321	   | 
 //  | orange     | D21    | 123	   | 
   
-  save_str(store, strdup("Ferarri"));
-  save_str(store, strdup("Merci"));
+//  save_str(store, strdup("Ferarri"));
+//  save_str(store, strdup("Merci"));
   
   
   
-  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+  new_item(store, "Ferarri",  "wrooooom!", 10, "A10", 3); 
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  ioopm_list_t *locs = get_locations(store, "A10");
+  ioopm_link_t *link = locs->first;
 
+
+  while (link) {
+
+    char * v = get_elem_ptr(link->element);
+    if (STREQ("Ferarri", v) {
+      CU_ASSERT_TRUE(true);
+    }else if (STREQ("apple", v) {
+      CU_ASSERT_TRUE(true);
+    }else if (STREQ("pear", v) {
+      CU_ASSERT_TRUE(true);
+    }
+    link = link->next;
+  }
+  
+  
   store_destroy(store);
 
 
@@ -231,8 +235,25 @@ void get_merch_name_in_storage_test(void){
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
+  char * a = get_merch_name_in_storage(store, 1);
+  char * b = get_merch_name_in_storage(store, 2);
+  char * c = get_merch_name_in_storage(store, 3);
+  char * d = get_merch_name_in_storage(store, 4);
 
 
+// Looking in all vars for answer, since we don't know order  
+  CU_ASSERT_TRUE((STR_EQ(a, "Ferarri")) || (STR_EQ(a, "apple")) ||
+                 (STR_EQ(a, "pear")) || (STR_EQ(a, "orange")));
+
+  CU_ASSERT_TRUE((STR_EQ(b, "Ferarri")) || (STR_EQ(b, "apple")) ||
+                 (STR_EQ(b, "pear")) || (STR_EQ(b, "orange")));
+
+  CU_ASSERT_TRUE((STR_EQ(c, "Ferarri")) || (STR_EQ(c, "apple")) ||
+                 (STR_EQ(c, "pear")) || (STR_EQ(c, "orange")));
+
+  CU_ASSERT_TRUE((STR_EQ(d, "Ferarri")) || (STR_EQ(d, "apple")) ||
+                 (STR_EQ(d, "pear")) || (STR_EQ(d, "orange")));
+  
   store_destroy(store);
 
 
@@ -255,9 +276,17 @@ void get_shelf_after_shelf_nr_test(void){
   
   new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
-  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  get_shelf_after_shelf_nr(store, 1, "apple");
+  get_shelf_after_shelf_nr(store, 1, "Ferarri");
+  get_shelf_after_shelf_nr(store, 1, "pear");
+
+  CU_ASSERT_TRUE(STR_EQ(get_shelf_after_shelf_nr(store, 1, "orange"), "D21"));
+  CU_ASSERT_TRUE(STR_EQ(get_shelf_after_shelf_nr(store, 1, "apple"), "A10"));
+  CU_ASSERT_TRUE(STR_EQ(get_shelf_after_shelf_nr(store, 1, "Ferarri"), "A01"));
+  CU_ASSERT_TRUE(STR_EQ(get_shelf_after_shelf_nr(store, 1, "pear"), "A10"));
 
   store_destroy(store);
 
@@ -1252,43 +1281,6 @@ void str_memory_management_system_test(void){
   store_destroy(store);
 }
 
-void str_memory_management_system_manual_test(void){
-  char  *str1  = NULL;
-  char  *str2  = NULL;
-  char  *str3  = NULL;
-  
-  webstore_t *store = store_create();
-  //  str1 = malloc(sizeof(char) * 5);
-  
-  str1 = strdup("heap allocated 1\0");
-  str2 = strdup("heap allocated 2\0");
-  str3 = strdup("heap allocated 3\0");
-
-  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 1\0"));  
-  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 2\0"));  
-  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 3\0"));  
-  
-  save_str(store, str1);
-  save_str(store, str2);
-  save_str(store, str3);
-
-  CU_ASSERT_TRUE(is_saved_str(store, "heap allocated 1\0"));  
-  CU_ASSERT_TRUE(is_saved_str(store, "heap allocated 2\0"));  
-  CU_ASSERT_TRUE(is_saved_str(store, "heap allocated 3\0"));  
-
-  
-  CU_ASSERT_TRUE(free_str(store, "heap allocated 1\0"));
-  CU_ASSERT_TRUE(free_str(store, "heap allocated 2\0"));
-  CU_ASSERT_TRUE(free_str(store, "heap allocated 3\0"))
-    ;
-  
-  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 1\0"));  
-  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 2\0"));  
-  CU_ASSERT_FALSE(is_saved_str(store, "heap allocated 3\0"));  
-  //  
-  // free(str1);  
-  store_destroy(store);
-}
 
 void create_shelf_test(void){
   shelf_t *new_shelf = create_shelf("A23", 123);    
@@ -1472,13 +1464,7 @@ int main()
 			  free_saved_strs_test)) ||
 
 
-
-     (NULL == CU_add_test(merch_api_test_suite,
-			  "Function free_str_test test",
-			  free_str_test)) ||
-
-
-
+     
      (NULL == CU_add_test(merch_api_test_suite,
 			  "Function get_locations_test test",
 			  get_locations_test)) ||

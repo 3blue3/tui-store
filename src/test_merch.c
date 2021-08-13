@@ -279,9 +279,6 @@ void get_shelf_after_shelf_nr_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
-  get_shelf_after_shelf_nr(store, 1, "apple");
-  get_shelf_after_shelf_nr(store, 1, "Ferarri");
-  get_shelf_after_shelf_nr(store, 1, "pear");
 
   CU_ASSERT_TRUE(STR_EQ(get_shelf_after_shelf_nr(store, 1, "orange"), "D21"));
   CU_ASSERT_TRUE(STR_EQ(get_shelf_after_shelf_nr(store, 1, "apple"), "A10"));
@@ -294,7 +291,7 @@ void get_shelf_after_shelf_nr_test(void){
 
   CU_ASSERT_TRUE(true);
 }
-void increase_equal_stock_test(void){
+void decrease_equal_stock_test(void){
   webstore_t *store = store_create();
 
 //  | Merch      | Shelf  | Amount | 
@@ -310,15 +307,32 @@ void increase_equal_stock_test(void){
   
   new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
-  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
+  new_item(store, "pear",   "a fruit", 12, "A10", 1);
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
 
-  store_destroy(store);
+  set_shelf(store, "orange", "D22", 123);
 
 
+  // D22 123
+  // D21 123
+
+  decrease_equal_stock(store, "orange", 246); //
+  // D21: 123 - 246 = 0 ==> 123
+  // D22: 123 - 246 = 0 ==> 0
+    
+  CU_ASSERT_EQUAL(0,  merch_stock_on_shelf(store, "orange", "D22"));
+  CU_ASSERT_EQUAL(0,  merch_stock_on_shelf(store, "orange", "D21"));
+
+  decrease_equal_stock(store, "orange", 340); //
+
+
+  // This is true since you cannot have a negative stock  
+  CU_ASSERT_EQUAL(0,  merch_stock_on_shelf(store, "orange", "D22"));
+  CU_ASSERT_EQUAL(0,  merch_stock_on_shelf(store, "orange", "D21"));
 
   CU_ASSERT_TRUE(true);
+  store_destroy(store);  
 }
 void increase_stock_test(void){
   webstore_t *store = store_create();
@@ -340,9 +354,16 @@ void increase_stock_test(void){
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
 
+  // D22 123
+  // D21 123
+
+  increase_stock(store, "orange", "D21",  46); //
+  // D21: 123 - 246 = 0 ==> 123
+  // D22: 123 - 246 = 0 ==> 0
+
+  CU_ASSERT_EQUAL(123 + 46,  merch_stock_on_shelf(store, "orange", "D21"));
+
   store_destroy(store);
-
-
 
   CU_ASSERT_TRUE(true);
 }
@@ -1484,8 +1505,8 @@ int main()
 
 
      (NULL == CU_add_test(merch_api_test_suite,
-			  "Function increase_equal_stock_test test",
-			  increase_equal_stock_test)) ||
+			  "Function decrease_equal_stock_test test",
+			  decrease_equal_stock_test)) ||
 
 
 

@@ -105,7 +105,7 @@ void set_shelf(webstore_t *store, char *name,
 
 void store_destroy(webstore_t *store);
 webstore_t *store_create();
-size_t increase_equal_stock(webstore_t *store, char *name, size_t amount);
+size_t decrease_equal_stock(webstore_t *store, char *name, size_t amount);
 void list_merchandise(webstore_t *store);
 
 bool merch_in_stock(webstore_t *store, char *name);
@@ -165,10 +165,6 @@ bool shelf_exists(webstore_t *store, char *shelf);
 void free_saved_strs(webstore_t *store);
 
 
-// bool free_str(store, str)
-// free any string equal to str if saved
-// returns: true if a string was freed
-bool free_str(webstore_t *store, char *str);
 
 // bool free_str(store, str)
 // save any heap allocated strings pointer.

@@ -269,63 +269,7 @@ void free_saved_strs(webstore_t *store){
 }
 
 
-void free_str_fun(elem_t elem, void *str_match) {
-  char *str = (char*)get_elem_ptr(elem);
-  if (STR_EQ(str, str_match)){
-    free(str);
-    str = NULL;
-  }  
-}
 
-
-bool free_str(webstore_t *store, char * value) /// BAH
-{
-  ioopm_list_t *list = store->heap_strs;
-  
-  if (list->size == 0) false;
-  
-  ioopm_link_t *link = list->first;
-
-  while (link != NULL)
-    {
-      if (STR_EQ( (char *)get_elem_ptr(link->element) , value)){
-	char *match = (char *)get_elem_ptr(link->element);
-	free(match);
-        link->element = ptr_elem(NULL); // NULL PTR
-
-        return true;
-	  } else link = link->next;
-      
-    }
-
-
-    return false;
-}
-//bool free_str(webstore_t *store, char *str_cmp){
-//  // Free all saved strings 
-//
-//  // Unallocated webstore or shelf database
-//  if (store->storage_db == NULL)                              return false;
-//  else if ((!store->heap_strs) || (!store->heap_strs->first))   return false;
-//  
-//  ioopm_list_t *list = store->heap_strs;
-//  ioopm_linked_list_contains(list, ptr_elem(str_cmp));
-//
-//
-//  for (size_t i = 1; i <= ioopm_linked_list_size(list); i++){
-//    char *current = (char *)get_elem_ptr(ioopm_linked_list_get(list, i));
-//    printf ("Current: %s\nLooking for: %s\n\n", current, str_cmp);
-//    
-//    if (STR_EQ(current, str_cmp)){
-//      ioopm_linked_list_remove(list, i);
-//      return true;
-//    }
-//    }
-//
-//  return false;
-//  }
-
-// change merch on shelf
 bool shelf_exists(webstore_t *store, char *shelf){
 
   // Unallocated webstore or shelf database
@@ -1054,7 +998,7 @@ void set_shelf(webstore_t *store, char *name,
 
   
   set_merch_stock(store, name, amount, shelf);
-  sync_merch_stock(store, name);
+  //  sync_merch_stock(store, name);
 }
 
 
@@ -1086,7 +1030,7 @@ bool sync_merch_stock(webstore_t *store, char *name){
   
   ioopm_link_t *db_item  = merch_data->locs->first;
  
-  do {
+   while (db_item) {
     shelf_t *shelf = get_elem_ptr(db_item->element);
    
     // Remove stock gradually from shelfs
@@ -1097,11 +1041,9 @@ bool sync_merch_stock(webstore_t *store, char *name){
 	add_to_storage(store, merch_data->name, shelf->shelf);
       }
 
-
-
     }
     db_item = db_item->next;           
-  } while (db_item != NULL);
+  }
     
 
   ///  merch_data->total_amount = new_amount;
@@ -1110,7 +1052,7 @@ bool sync_merch_stock(webstore_t *store, char *name){
   else return false;
 }
 
-size_t increase_equal_stock(webstore_t *store, char *name, size_t amount){
+size_t decrease_equal_stock(webstore_t *store, char *name, size_t amount){
   // Increase (or decrease) the stock at an existing
   // shelf. A negative (amount) decreases stock, positive
   // increases.  
@@ -1135,10 +1077,10 @@ size_t increase_equal_stock(webstore_t *store, char *name, size_t amount){
 
   // Remove amount from shelf n
   // If (new amount < 0) then shelf amount = 0, continue on -new_amount
-  
+
   do {
     shelf_t *shelf = get_elem_ptr(db_item->element);
-   
+
     // Remove stock gradually from shelfs
     if (shelf->amount > 0){
       new_amount = shelf->amount - tmp_amount;
@@ -1150,8 +1092,12 @@ size_t increase_equal_stock(webstore_t *store, char *name, size_t amount){
       }else{
 	shelf->amount = new_amount;
         break;
-      }
-    }
+      } 
+
+    } else{
+	shelf->amount = new_amount;
+	break;
+    } 
 					      
     db_item = db_item->next;           
   } while (db_item != NULL);

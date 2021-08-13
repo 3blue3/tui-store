@@ -560,7 +560,7 @@ int active_cart_cost(webstore_t *store){
   if (!store->all_shopping_carts){
     perror("active_cart_cost: Cart database is deallocated.\n");
     return 0;
-  }
+ }
 
   return calculate_cost(store, store->active_cart);
 }
@@ -675,7 +675,7 @@ void checkout(webstore_t *store){
     current_name = get_elem_str(ioopm_linked_list_get(names, 0));
     current_amount = amount_of_merch_in_cart(current_cart, current_name);
     //    change_stock_in_webstore(store, current_name, current_amount);
-    increase_equal_stock(store, current_name, current_amount);
+    decrease_equal_stock(store, current_name, current_amount);
     
     printf("┃ Buying %s (%dst)x(%dkr)\n",
 	   current_name,
@@ -693,7 +693,7 @@ void checkout(webstore_t *store){
     for (int i = 0; i < no_names; i++) {
       current_name = get_elem_str(ioopm_iterator_current(iter_n));
       current_amount = amount_of_merch_in_cart(current_cart, current_name);
-      increase_equal_stock(store, current_name, current_amount);
+      decrease_equal_stock(store, current_name, current_amount);
       //      change_stock_in_webstore(store, current_name, current_amount); 
 
       printf("┃ Buying %s (%dst)x(%dkr)\n",

@@ -317,15 +317,14 @@ void decrease_equal_stock_test(void){
   // D22 123
   // D21 123
 
-  decrease_equal_stock(store, "orange", 246); //
+  decrease_equal_stock(store, "orange", 246); 
   // D21: 123 - 246 = 0 ==> 123
   // D22: 123 - 246 = 0 ==> 0
     
   CU_ASSERT_EQUAL(0,  merch_stock_on_shelf(store, "orange", "D22"));
   CU_ASSERT_EQUAL(0,  merch_stock_on_shelf(store, "orange", "D21"));
 
-  decrease_equal_stock(store, "orange", 340); //
-
+  decrease_equal_stock(store, "orange", 340); 
 
   // This is true since you cannot have a negative stock  
   CU_ASSERT_EQUAL(0,  merch_stock_on_shelf(store, "orange", "D22"));
@@ -364,9 +363,12 @@ void increase_stock_test(void){
   CU_ASSERT_EQUAL(123 + 46,  merch_stock_on_shelf(store, "orange", "D21"));
 
   store_destroy(store);
-
+ 
   CU_ASSERT_TRUE(true);
 }
+
+
+
 void is_saved_str_test(void){
   webstore_t *store = store_create();
 
@@ -386,10 +388,15 @@ void is_saved_str_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  CU_ASSERT_TRUE(is_saved_str(store, "Ferarri"));
+  CU_ASSERT_TRUE(is_saved_str(store, "Merci"));
+
+  free_saved_strs(store);
+
+  CU_ASSERT_FALSE(is_saved_str(store, "Ferarri"));
+  CU_ASSERT_FALSE(is_saved_str(store, "Merci"));
 
   store_destroy(store);
-
-
 
   CU_ASSERT_TRUE(true);
 }
@@ -412,10 +419,10 @@ void list_merchendise_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  list_merchandise(store);
+
 
   store_destroy(store);
-
-
 
   CU_ASSERT_TRUE(true);
 }
@@ -437,8 +444,17 @@ void list_shelfs_test(void){
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
-
-
+  set_shelf(store, "pear", "A11", 1);
+  set_shelf(store, "pear", "A12", 2);
+  set_shelf(store, "pear", "A13", 3);
+  set_shelf(store, "pear", "A14", 4);
+  set_shelf(store, "pear", "A15", 5);  
+  
+  list_shelfs(store, "Ferarri");
+  list_shelfs(store, "apple");
+  list_shelfs(store, "orange");
+  list_shelfs(store, "pear");  
+  
   store_destroy(store);
 
 
@@ -463,6 +479,27 @@ void lookup_merch_name_test(void){
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
+
+
+  char * a =  lookup_merch_name(store, 0);
+  char * b =  lookup_merch_name(store, 1);
+  char * c =  lookup_merch_name(store, 2);
+  char * d =  lookup_merch_name(store, 3);
+
+
+// Looking in all vars for answer, since we don't know order  
+  CU_ASSERT_TRUE((STR_EQ(a, "Ferarri")) || (STR_EQ(a, "apple")) ||
+                 (STR_EQ(a, "pear")) || (STR_EQ(a, "orange")));
+
+  CU_ASSERT_TRUE((STR_EQ(b, "Ferarri")) || (STR_EQ(b, "apple")) ||
+                 (STR_EQ(b, "pear")) || (STR_EQ(b, "orange")));
+
+  CU_ASSERT_TRUE((STR_EQ(c, "Ferarri")) || (STR_EQ(c, "apple")) ||
+                 (STR_EQ(c, "pear")) || (STR_EQ(c, "orange")));
+
+  CU_ASSERT_TRUE((STR_EQ(d, "Ferarri")) || (STR_EQ(d, "apple")) ||
+                 (STR_EQ(d, "pear")) || (STR_EQ(d, "orange")));
+  
 
 
   store_destroy(store);
@@ -490,11 +527,18 @@ void merch_description_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  char *a = merch_description(store, "Ferarri");
+  char *b = merch_description(store, "apple");
+  char *c = merch_description(store, "pear");
+  char *d = merch_description(store, "orange");
+
+  CU_ASSERT_TRUE(STR_EQ(a, "wrooooom!"));
+  CU_ASSERT_TRUE(STR_EQ(b, "a fruit"));
+  CU_ASSERT_TRUE(STR_EQ(c, "a fruit"));
+  CU_ASSERT_TRUE(STR_EQ(d, "a fruit"));
 
   store_destroy(store);
-
-
-
+  
   CU_ASSERT_TRUE(true);
 }
 void merch_in_stock_test(void){
@@ -512,15 +556,19 @@ void merch_in_stock_test(void){
   
   
   new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
-  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
+  new_item(store, "apple",  "a fruit", 10, "A10", 0);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
 
+  CU_ASSERT_TRUE(merch_in_stock(store, "Ferarri"));
+// THis is true since the function does not check the stock variable  
+  CU_ASSERT_TRUE(merch_in_stock(store, "apple"));
+  CU_ASSERT_TRUE(merch_in_stock(store, "pear"));
+  CU_ASSERT_TRUE(merch_in_stock(store, "orange"));
+
   store_destroy(store);
-
-
-
+  
   CU_ASSERT_TRUE(true);
 }
 void merch_locs_test(void){
@@ -534,9 +582,7 @@ void merch_locs_test(void){
   
   save_str(store, strdup("Ferarri"));
   save_str(store, strdup("Merci"));
-  
-  
-  
+     
   new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 

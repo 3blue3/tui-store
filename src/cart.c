@@ -39,20 +39,6 @@
     if (store->opt->log_p) \
       printf("LOG[cart = %d]: %s\n", (int)store->active_cart, str)
 
-#define LOG_STR(str)  \
-    if (store->opt->log_p) \
-      printf("LOG: %s\n", str)
-
-
-#define LOG_STR_INT(str, i)  \
-    if (store->opt->log_p) \
-      printf("LOG: %s (%d)\n", str, i)
-
-#define IF_LOG(expr)  \
-    if (store->opt->log_p) \
-      expr
-
-
 #define ID_BOUNDS_MAX 100000
 #define ID_BOUNDS_MIN 0
 ///
@@ -61,9 +47,6 @@
 
 bool is_money(int size){
   return (size < MAX_ALLOWED_PRICE) && (size > MIN_ALLOWED_PRICE);
-}
-bool is_merch(webstore_t *store, int id){
-  return valid_index(store, id);
 }
 
 void display_header(char *str, bool sectionp){

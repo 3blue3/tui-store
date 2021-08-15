@@ -4,17 +4,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-
-
 #include "utils.h"
+#include "ui.h"
 
-
-// 0 : Swedish
-// 1 : English
-// #define LANG 0
-#define LANG 1
-#define SWE(thing) if (LANG == 0) { thing; }
-#define ENG(thing) if (LANG == 1) { thing; }
 
 /// String and Chars:
 
@@ -205,9 +197,14 @@ answer_t ask_question(char *question, check_func check, convert_func convert){
 bool choice_prompt(char *prompt){
   char command[10];
 
-  printf("┏──╸%s \n", prompt);
-  ENG(puts("┃ [Y]es   [N]o  "));
-  SWE(puts("┃ [J]a    [N]ej "));    
+  PROMPT_MENU_HEADER(prompt);
+
+  ENG(PROMPT_MENU_W_KEY("Yes", 'Y'));
+  ENG(PROMPT_MENU_W_KEY("No",  'N'));
+
+  SWE(PROMPT_MENU_W_KEY("Ja",   'Y'));
+  SWE(PROMPT_MENU_W_KEY("Nej",  'N'));
+
   printf("┃ > ");
 
   read_string(command, 10);

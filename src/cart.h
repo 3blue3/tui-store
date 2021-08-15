@@ -9,13 +9,8 @@
 #include <stdbool.h>
 
 #include "webstore.h"
+#include "ui.h"
 
-
-#define LANG 1
-#define SWE(thing) if (LANG == 0) { thing; }
-#define ENG(thing) if (LANG == 1) { thing; }
-#define clear() printf("\033[H\033[J")
-#define newline puts("")
 #define AMOUNT_UPPER_MAX 100000
 
 #define EITHER_CHAR(str, a, c)			\
@@ -33,11 +28,6 @@
 
 #define UNTIL_PLEASED(what) \
   do { what; } while (!choice_prompt("Correct?"))
-
-#define BIPROMPT(swe, eng, what) \
-  SWE(puts(swe)); \
-  ENG(puts(eng)); \
-  what
 
 //used to place keys and values in one
 struct entry_ht

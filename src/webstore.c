@@ -12,6 +12,7 @@
 #include "cart.h"
 #include "webstore.h"
 #include "merch.h"
+#include "ansi.h"
 
 bool valid_index(webstore_t *store, int index);
 char *lookup_merch_name(webstore_t *store, int index); 
@@ -498,7 +499,7 @@ void list_merchandise(webstore_t *store){
   for (int i = 1;; i++){
     // Prompt for continuing to display merch
     if ((i % (continue_alert_number) == 0) && \
-	!continue_printing()) break;
+	!choice_prompt("Continue printing?")) break;
     // Print current merch
     printf("┏──╸ No.%d \n", i);
     print_merch(current);
@@ -1417,12 +1418,12 @@ char *lookup_merch_name(webstore_t *store, int index){
     ioopm_hash_table_values(store->merch_db); 
 
   if (index < 0){
-    perror("lookup_merch_name: Too Small Index.\n");
+    printf("┃  \e[31mToo Small Index.\n\e[0m");
     ioopm_linked_list_destroy(list_merch);  
     return "";
    } 
   if (((size_t)index >= ioopm_linked_list_size(list_merch))){
-    perror("lookup_merch_name: Too Large index.\n");
+    printf("┃  Too Large index.\n");
     ioopm_linked_list_destroy(list_merch);  
     return "";
   }
@@ -1436,6 +1437,12 @@ char *lookup_merch_name(webstore_t *store, int index){
   return merch_name;
 }
 
+
+
+bool is_merch(webstore_t *store, int id){
+  return valid_index(store, id);
+}
+
 bool valid_index(webstore_t *store, int index){
   // Return true if index is less or equal to
   // the amount of merch in the merch database
@@ -1443,7 +1450,7 @@ bool valid_index(webstore_t *store, int index){
   int total = count_loc_dep_stock(store);
   
   if (index > total){
-    perror("valid_index: Too Large index.\n");
+    PROMPT_INVALID("Too small index");
 
     return false;
   }  
@@ -1463,10 +1470,14 @@ bool valid_index(webstore_t *store, int index){
 
 
 void print_merch(merch_t *merch){
-  printf("┃ > Item:          %s\n", merch->name);  
-  printf("┃ > Description:   %s\n", merch->desc);
-  printf("┃ > Price:         %ld\n",merch->price);
-  printf("┃ > Stock (Total): %ld\n", merch->total_amount);
+  printf("┃ > %sItem:%s          %s%s%s\n", FG_GREEN,   NORMAL,
+	 FG_BLUE, merch->name,  NORMAL);  
+  printf("┃ > %sDescription:%s   %s%s%s\n", FG_GREEN,   NORMAL,
+	 FG_BLUE, merch->desc,  NORMAL);
+  printf("┃ > %sPrice:%s         %s%ld%s\n",FG_GREEN,   NORMAL,
+	 FG_BLUE, merch->price, NORMAL);
+  printf("┃ > %sStock (Total):%s %s%ld%s\n", FG_GREEN,  NORMAL,
+	 FG_BLUE, merch->total_amount,  NORMAL);
 }
 
 /// Other

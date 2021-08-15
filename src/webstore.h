@@ -85,7 +85,7 @@ void parse_args(webstore_t *store, int argc, char *argv[]);
 
 
 /////// Merch
-bool valid_index(webstore_t *store, int index);
+
 char *lookup_merch_name(webstore_t *store, int index); 
 
 void print_merch(merch_t *merch);
@@ -143,7 +143,7 @@ void destroy_shelf(shelf_t *shelf);
 
 bool continue_printing();
 bool valid_index(webstore_t *store, int index);
-
+bool is_merch(webstore_t*, int);	      
 char *get_merch_name_in_storage(webstore_t *store, int nr_merch);
 char *get_shelf_after_shelf_nr(webstore_t *store, int shelf_nr, char *name);
 

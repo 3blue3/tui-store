@@ -10,41 +10,9 @@
 #include "utils.h"
 #include "merch.h"
 #include "webstore.h"
+#include "ansi.h"
 #include "cart.h"
-
-
-
-
-void event_loop_webstore(webstore_t *store);
-void event_loop_cart(webstore_t *store);
-int final_cost_menu(webstore_t *store);
-void change_active_cart_id(webstore_t *store);
-char unicode_edit_cart_menu(webstore_t *store);
-void event_loop_menu(webstore_t *store);
-void print_cart_id(webstore_t *store);
-void change_cart_id_prompt(webstore_t *store);
-void display_cart_id_prompt(webstore_t *store);
-int final_cost_menu(webstore_t *store);
-void set_merch_desc_menu(webstore_t *store, char *name);
-void set_merch_price_menu(webstore_t *store, char *name);
-void update_shelf_stock_menu(webstore_t *store, char *name);
-void add_new_merch_prompt(webstore_t *store);
-void remove_merch_prompt(webstore_t *store);
-void lookup_merch_prompt(webstore_t *store);
-void edit_merch_prompt(webstore_t *store);
-int unicode_edit_merch_menu(webstore_t *store, char *name);
-
-void unicode_cart_menu(webstore_t *store);
-void unicode_merch_menu(webstore_t *store);
-
-#define current_cart_id	store->active_cart
-
-#define LANG 1
-
-#define SWE(thing) if (LANG == 0) { thing; }
-#define ENG(thing) if (LANG == 1) { thing; }
-
-char unicode_edit_cart_menu(webstore_t *store);
+#include "ui.h"
 
 void unicode_merch_menu(webstore_t *store){
   char command[10] = "";

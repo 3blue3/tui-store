@@ -60,7 +60,7 @@ build_and_run_tests: clean_tests tests ui
 	@echo "> Running Unit Tests...\n"
 	valgrind --leak-check=full -s --show-leak-kinds=all ./bin/run_test
 #	./bin/run_test	
-
+#	gcov   ${LIBS} ./src/test_merch.c ./bin/run-test
 	@echo "> Finished!\n"
 	@echo "#================# Tests Complete #================#"
 # "¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨" 
@@ -95,18 +95,18 @@ runl: main
 	./bin --log --debug
 
 help:
-	@printf "=Commands=\t=Description=\n"
-	@printf "make [Option]            \n"
-	@printf "== Options [Shortcut name] ==            \n"
-	@printf "build_and_tests[bart] -- Build and run tests\n"
-	@printf	"main                  -- Build without UI   \n
-	@printf	"clean                 -- Clean the binary without UI\n
-	@printf "ui                    -- Build with UI      \n
-	@printf "clean_ui              -- Clean UI binaries  \n
-	@printf	"run_ui                -- Run UI binary      \n
-	@printf "tests                 -- Build CUnit Tests  \n
-	@printf "clean_tests           -- Clean Test binaries\n
-	@printf "
-	@printf	"
-	@printf "make help\tDisplay this message\n"
+	@printf "=Commands=\t=Description=                           \n"
+	@printf "make [Option]                                       \n"
+	@printf "== Options [Shortcut name] ==                       \n"
+	@printf "build_and_tests[bart] -- Build and run tests        \n"
+	@printf	"main                  -- Build without UI           \n"
+	@printf	"clean                 -- Clean the binary without UI\n"
+	@printf "ui                    -- Build with UI              \n"
+	@printf "clean_ui              -- Clean UI binaries          \n"
+	@printf	"run_ui                -- Run UI binary              \n"
+	@printf "tests                 -- Build CUnit Tests          \n"
+	@printf "clean_tests           -- Clean Test binaries        \n"
+	@printf ""
+	@printf	""
+	@printf "make help\tDisplay this message                     \n"
 

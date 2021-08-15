@@ -95,7 +95,7 @@ void destroy_storage(webstore_t *store);
 
 void remove_shelf(webstore_t *store, char *shelf);
 ioopm_list_t *get_locations(webstore_t *store, char *shelf);
-bool storage_contains(webstore_t *store, char *shelf, char *name);
+bool storage_contains(webstore_t *store, char *name, char *shelf);
 
 void list_shelfs(webstore_t *store, char *name);
 void display_shelf(webstore_t *store, char *shelf);

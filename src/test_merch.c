@@ -571,6 +571,7 @@ void merch_in_stock_test(void){
   
   CU_ASSERT_TRUE(true);
 }
+
 void merch_locs_test(void){
   webstore_t *store = store_create();
 
@@ -588,11 +589,33 @@ void merch_locs_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  set_shelf(store, "pear", "A11", 1);
+  set_shelf(store, "pear", "A12", 2);
+  set_shelf(store, "pear", "A13", 3);
+  set_shelf(store, "pear", "A14", 4);
+  set_shelf(store, "pear", "A15", 5);
+
+
+  ioopm_list_t *locs = merch_locs(store, "pear");
+  ioopm_link_t *link = locs->first;
+  
+  CU_ASSERT_EQUAL(ioopm_linked_list_size(locs), 6);
+
+  while (link) {
+    shelf_t *s = get_elem_ptr(link->element);
+    CU_ASSERT_TRUE(STR_EQ(s->shelf, "A10") ||
+                   STR_EQ(s->shelf, "A11") ||
+                   STR_EQ(s->shelf, "A12") ||
+                   STR_EQ(s->shelf, "A13") ||                   
+                   STR_EQ(s->shelf, "A14") ||
+                   STR_EQ(s->shelf, "A15"))
+                   
+        
+    link = link->next;    
+  }
+  
 
   store_destroy(store);
-
-
-
   CU_ASSERT_TRUE(true);
 }
 void merch_stock_test(void){
@@ -622,34 +645,18 @@ void merch_stock_test(void){
   CU_ASSERT_TRUE(true);
 }
 void merch_stock_on_shelf_test(void){
-  webstore_t *store = store_create();
-
-//  | Merch      | Shelf  | Amount | 
-//  | Ferarri    | A01    | 3      |
-//  | apple      | A10    | 1	   | 
-//  | pear       | A10    | 321	   | 
-//  | orange     | D21    | 123	   | 
-  
-  save_str(store, strdup("Ferarri"));
-  save_str(store, strdup("Merci"));
-  
-  
-  
-  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
-  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
-  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
-  new_item(store, "orange", "a fruit", 14, "D21", 123);
-
-
-  store_destroy(store);
-
-
-
+// Tested in the decrease_equal_stock_test test
   CU_ASSERT_TRUE(true);
 }
 void parse_args_test(void){
   webstore_t *store = store_create();
 
+  char *argv[] = {"/blah/blah", "--log"};
+  parse_args(store, 2, argv);
+
+  CU_ASSERT_TRUE(store->opt->log_p);
+  CU_ASSERT_FALSE(store->opt->debug_p);
+  
 //  | Merch      | Shelf  | Amount | 
 //  | Ferarri    | A01    | 3      |
 //  | apple      | A10    | 1	   | 
@@ -691,8 +698,13 @@ void print_merch_test(void){
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
+  elem_t elem_data =
+    ioopm_hash_table_lookup(store->merch_db,
+			    ptr_elem("pear"));
+  
+  merch_t      *merch_data = get_elem_ptr(elem_data);
 
-
+  print_merch(merch_data);
   store_destroy(store);
 
 
@@ -702,15 +714,12 @@ void print_merch_test(void){
 void remove_from_stroage_test(void){
   webstore_t *store = store_create();
 
-//  | Merch      | Shelf  | Amount | 
-//  | Ferarri    | A01    | 3      |
-//  | apple      | A10    | 1	   | 
-//  | pear       | A10    | 321	   | 
-//  | orange     | D21    | 123	   | 
-  
-  save_str(store, strdup("Ferarri"));
-  save_str(store, strdup("Merci"));
-  
+//  | Merch      | Shelf  | 
+//  | Ferarri    | A01    | 
+//  | apple      | A10    | 
+//  | pear       | A10    | 
+//  | orange     | D21    | 
+    
   
   
   new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
@@ -718,12 +727,16 @@ void remove_from_stroage_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  add_to_storage(store, "Ferarri", "A01");
+  add_to_storage(store, "apple",   "A10");
+  add_to_storage(store, "pear",   "A10");
+  add_to_storage(store, "orange", "D21");
+
+  remove_from_storage(store, "pear", "A20");
+
+  CU_ASSERT_FALSE(storage_contains(store, "pear", "A10"));
 
   store_destroy(store);
-
-
-
-  CU_ASSERT_TRUE(true);
 }
 void remove_merchendise_test(void){
   webstore_t *store = store_create();
@@ -744,7 +757,22 @@ void remove_merchendise_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  CU_ASSERT_EQUAL(merch_stock(store, "Ferarri"), 3);
+  remove_merchendise(store, "Ferarri");
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(store->merch_db, ptr_elem("Ferarri")));
 
+  CU_ASSERT_EQUAL(merch_stock(store, "apple"), 1);
+  remove_merchendise(store, "apple");
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(store->merch_db, ptr_elem("apple")));
+  
+  CU_ASSERT_EQUAL(merch_stock(store, "pear"), 1);
+  remove_merchendise(store, "pear");
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(store->merch_db, ptr_elem("pear")));
+
+  CU_ASSERT_EQUAL(merch_stock(store, "orange"), 123);
+  remove_merchendise(store, "orange");
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(store->merch_db, ptr_elem("orange")));
+  
   store_destroy(store);
 
 
@@ -996,19 +1024,15 @@ void show_stock_test(void){
 //  | orange     | D21    | 123	   | 
   
   save_str(store, strdup("Ferarri"));
-  save_str(store, strdup("Merci"));
-  
-  
+  save_str(store, strdup("Merci"));   
   
   new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
-
+  show_stock(store);
   store_destroy(store);
-
-
 
   CU_ASSERT_TRUE(true);
 }
@@ -1023,18 +1047,19 @@ void shelf_exists_test(void){
   
   save_str(store, strdup("Ferarri"));
   save_str(store, strdup("Merci"));
-  
-  
-  
-  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
+
+
+
+  new_item(store, "Ferarri", "wrooooom!", 10, "A01", 3);
   new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
-
+  shelf_exists(store, "A01");
+  shelf_exists(store, "A10");
+  shelf_exists(store, "D21");
+  
   store_destroy(store);
-
-
 
   CU_ASSERT_TRUE(true);
 }
@@ -1045,24 +1070,21 @@ void storage_contains_test(void){
 //  | Ferarri    | A01    | 3      |
 //  | apple      | A10    | 1	   | 
 //  | pear       | A10    | 321	   | 
-//  | orange     | D21    | 123	   | 
+//  | orange     | D21    | 123	   |
+  char *a = "A";
+  char *b = "A";
+  char *c = "A";
   
-  save_str(store, strdup("Ferarri"));
-  save_str(store, strdup("Merci"));
-  
-  
-  
-  new_item(store, "Ferarri",  "wrooooom!", 10, "A01", 3); 
-  new_item(store, "apple",  "a fruit", 10, "A10", 1);	 
-  new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
-  new_item(store, "orange", "a fruit", 14, "D21", 123);
-
+  add_to_storage(store,a , "A10"); 
+  add_to_storage(store, b, "A10");
+  add_to_storage(store, c, "A10");
+  display_shelf(store, "A10");
+ 
+  CU_ASSERT_TRUE(storage_contains(store,a , "A10"));  
+  CU_ASSERT_TRUE(storage_contains(store,b , "A10"));
+  CU_ASSERT_TRUE(storage_contains(store,c , "A10"));
 
   store_destroy(store);
-
-
-
-  CU_ASSERT_TRUE(true);
 }
 void store_create_test(void){
   webstore_t *store = store_create();
@@ -1371,13 +1393,7 @@ void shelf_exist_test(void){
   }
 
   // Assert they exist
-  for (int i=0; i < 5;i++) CU_ASSERT_TRUE(shelf_exists(store, shelfs[i]));
-
-
-
-
-
-  
+  for (int i=0; i < 5;i++) CU_ASSERT_TRUE(shelf_exists(store, shelfs[i]));  
   store_destroy(store);
 }
 

@@ -1183,7 +1183,17 @@ void valid_index_test(void){
   new_item(store, "pear",   "a fruit", 12, "A10", 1);	 
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
+  // A Valid index would be a index from 1->length(merch);
 
+  for (int i = 1; i <= 5; i++)
+    CU_ASSERT_TRUE(valid_index(store, i));
+
+
+
+  CU_ASSERT_FALSE(valid_index(store, -1));  
+  CU_ASSERT_FALSE(valid_index(store, 0));
+  CU_ASSERT_FALSE(valid_index(store, 6));
+  
   store_destroy(store);
 
 
@@ -1252,6 +1262,8 @@ void create_autodestroy_merch_test(void){
     
   webstore_t *store = store_create();
 
+  // Load a ton of merch!!!
+  INIT_DATABASE(store);
   // Add eggs as merchendise 
   new_item(store, new_item_name, new_item_desc, new_item_price,
 	   	   new_item_shelf, new_item_stock);

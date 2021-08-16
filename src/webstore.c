@@ -14,6 +14,14 @@
 #include "merch.h"
 #include "ansi.h"
 
+/* _  _ ____ ____ ____ _  _ ____ _  _ ___  _ ____ ____    ____ ___  _ 
+   |\/| |___ |__/ |    |__| |___ |\ | |  \ | [__  |___    |__| |__] | 
+   |  | |___ |  \ |___ |  | |___ | \| |__/ | ___] |___    |  | |    | 
+
+   [Erik Johan Karlsson]   [GPLv2]   [API for a merchendise database]
+*/
+
+
 bool valid_index(webstore_t *store, int index);
 char *lookup_merch_name(webstore_t *store, int index); 
 

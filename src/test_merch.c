@@ -5,6 +5,7 @@
 #include <CUnit/Basic.h>
 #include <stdlib.h>
 
+#include "ansi.h"
 #include "hash_table.h"
 #include "list_linked.h"
 #include "webstore.h"
@@ -14,6 +15,17 @@
 #include "ui.h"
 #include "merch.h"
 
+/*___ ____ ____ ___ _ _  _ ____ 
+   |  |___ [__   |  | |\ | | __ 
+   |  |___ ___]  |  | | \| |__]  
+  __________________________________________________________________
+  _  _ ____ ____ ____ _  _ ____ _  _ ___  _ ____ ____    ____ ___  _ 
+  |\/| |___ |__/ |    |__| |___ |\ | |  \ | [__  |___    |__| |__] | 
+  |  | |___ |  \ |___ |  | |___ | \| |__/ | ___] |___    |  | |    | 
+
+  [Erik Johan Karlsson] [GPLv2]  [CUnit testing the merchendise api]
+                                                                   
+*/
 
 int init_suite(void){
   return 0;
@@ -1409,45 +1421,40 @@ void shelf_exist_test(void){
   store_destroy(store);
 }
 
-void banner_api_start(void){
-
-  printf("\n");
-  printf("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n");
-  printf("█             STARTING THE MERCHENDISE API TESTS ...       █\n");
-  printf("█                                                          █\n");
-  printf("█__________________________________________________________█\n\n");
-
-
+void banner_end(void){
+  NEWLINE;
+  printf("%s%s%s_____________________________________________________________ %s\n", FG_GREEN, BG_BLACK, BOLD, NORMAL);
+  printf("%s%s%s___ ____ ____ ___ ____    ____ _ _  _ _ ____ _  _ ____ ___    %s\n", FG_GREEN, BG_BLACK, BOLD, NORMAL);
+  printf("%s%s%s |  |___ [__   |  [__     |___ | |\\ | | [__  |__| |___ |  \\ %s\n", FG_GREEN, BG_BLACK, BOLD, NORMAL);
+  printf("%s%s%s |  |___ ___]  |  ___]    |    | | \\| | ___] |  | |___ |__/%s\n", FG_GREEN, BG_BLACK,   BOLD, NORMAL);
+  NEWLINE;
+							     
   CU_ASSERT_TRUE(true);
 }
-void banner_api_end(void){
-  printf("\n");
-  printf("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n");
-  printf("█             FINISHED TESTING MERCHENDISE API ✓           █\n");
-  printf("█                                                          █\n");
-  printf("█__________________________________________________________█\n\n");
+void banner_api_start(void){
 
-
+  NEWLINE;
+  printf("%s%s%s_  _ ____ ____ ____ _  _ ____ _  _ ___  _ ____ ____    ____ ___  _ %s\n", FG_BRIGHT_BLUE, BG_BLACK,   BOLD, NORMAL);
+  printf("%s%s%s|\\/| |___ |__/ |    |__| |___ |\\ | |  \\ | [__  |___    |__| |__] | %s\n",FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
+  printf("%s%s%s|  | |___ |  \\ |___ |  | |___ | \\| |__/ | ___] |___    |  | |    | %s\n", FG_BRIGHT_BLUE, BG_BLACK, BOLD, NORMAL);
+  printf("%s%s%s¨¨¨¨¨¨¨¨¨[Function specific Unit testing of the merch API]¨¨¨¨¨¨¨¨ %s\n", FG_BRIGHT_BLUE, BG_BLACK,   BOLD, NORMAL);
+  NEWLINE;
   CU_ASSERT_TRUE(true);
 }
 
 void banner_start(void){
-  printf("\n");
-  printf("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n");
-  printf("█        STARTING THE MERCHENDISE USE-CASE TESTS ...       █\n");
-  printf("█                                                          █\n");
-  printf("█__________________________________________________________█\n\n");
+  NEWLINE;
+  printf("%s%s%s_  _ ____ ____ ____ ____ ____ ____ ____%s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
+  printf("%s%s%s|  | [__  |___ |    |__| [__  |___ [__ %s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
+  printf("%s%s%s|__| ___] |___ |___ |  | ___] |___ ___]%s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
+  printf("%s%s%s¨¨¨Common usecases of the merch API¨¨¨¨%s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
+  NEWLINE;	 
 
   CU_ASSERT_TRUE(true);
 }
-void banner_end(void){
-  printf("\n");
-  printf("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n");
-  printf("█          FINISHED TESTING MERCHENDISE USE-CASES ✓        █\n");
-  printf("█                                                          █\n");
-  printf("█__________________________________________________________█\n\n");
-
-  CU_ASSERT_TRUE(true);
+void banner_api_end(void){
+  
+  banner_end();
 }
 
 

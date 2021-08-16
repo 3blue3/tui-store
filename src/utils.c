@@ -7,6 +7,15 @@
 #include "utils.h"
 #include "ui.h"
 
+/*
+____ ____ _  _ ____ ____ ____ _      _  _ ___ _ _    _ ___ _ ____ ____
+| __ |___ |\ | |___ |__/ |__| |      |  |  |  | |    |  |  | |___ [__ 
+|__] |___ | \| |___ |  \ |  | |___   |__|  |  | |___ |  |  | |___ ___]
+
+[Erik Karlsson]             [GPLv2]                [General Utilities]
+*/
+
+
 
 /// String and Chars:
 
@@ -199,11 +208,8 @@ bool choice_prompt(char *prompt){
 
   PROMPT_MENU_HEADER(prompt);
 
-  ENG(PROMPT_MENU_W_KEY("Yes", 'Y'));
-  ENG(PROMPT_MENU_W_KEY("No",  'N'));
-
-  SWE(PROMPT_MENU_W_KEY("Ja",   'Y'));
-  SWE(PROMPT_MENU_W_KEY("Nej",  'N'));
+PROMPT_MENU_W_KEY("Yes", 'Y');
+PROMPT_MENU_W_KEY("No",  'N');
 
   printf("┃ > ");
 

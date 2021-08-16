@@ -43,7 +43,14 @@
     if (store->opt->log_p) \
       printf("┃ %s%s[LOG]%s %s\n",FG_MAGENTA, BG_BLACK, NORMAL, str)
 
+#define INPUT_PROMPTf(size)		      \
+  printf("\e[s%s┃ ", LINE);			      \
+  for (int i = 0; i < size; i++) printf(" "); \
+  printf("┃%s", NORMAL); NEWLINE;	      \
+  for (int i = 0; i < size; i++) printf("¨\e[u") 
 
+#define PROMPT_INPUT_STR(message) \
+  ask_question_string(message)     
 // Macro: LOG_STR_INT(str, i)
 // Does:  Print a log statement of string containing a integer
 // Args:  str: Message to be logged
@@ -78,6 +85,20 @@
 #define PROMPT_BOLD(msg)				\
   printf("┃ > %s%s%s\n", BOLD, msg, NORMAL)
 
+// Macro: PROMPT_RESULT_STR(indata, result)
+// Does:  Act as a function which prints something's result
+// Args:  indata: to be printed in bold (Bold w. ANSI codes)
+//        result: to be printed in bold, green background (Bold, Green BG w. ANSI codes)
+#define PROMPT_RESULT_STR(indata, result)			\
+  printf("┃ > %s%s%s: %s%s%s%s\n", BOLD, indata, NORMAL, BG_GREEN, BOLD , result, NORMAL)
+
+// Macro: PROMPT_RESULT_INT(indata, result)
+// Does:  Act as a function which prints something's result (Integer)
+// Args:  indata: to be printed in bold (Bold w. ANSI codes)
+//        result: to be printed in bold, green background (Bold, Green BG w. ANSI codes)
+#define PROMPT_RESULT_INT(indata, result)					\
+  printf("┃ > %s%s%s: %s%s%d%s\n", BOLD, indata, NORMAL, BG_GREEN, BOLD , result, NORMAL)
+
 
 // Macro: PROMPT_W_ID(msg, i)
 // Does:  Act as a function which prints out some integer
@@ -87,13 +108,13 @@
 #define PROMPT_W_ID(msg, i)						\
   printf("┃ %s[%d]%s %s%s%s\n", FG_BLUE, i, NORMAL, BOLD, msg, NORMAL)
 
-// Macro: PROMPT_W_ID(msg, i)
+// Macro: PROMPT_SHELF(msg, i)
 // Does:  Act as a function which prints out some integer
 //        together with a message
 // Args:  msg: Message to be printed in bold (Blue w. ANSI codes)
 //          i: ID to be printed in blue (Blue w. ANSI codes)
-#define PROMPT_SHELF(merch_name, id, stock)		       \
-  printf("┃ %s[%d]%s %s%s%s %dst\n", FG_BLUE, id, NORMAL, BOLD, \
+#define PROMPT_SHELF(merch_name, shelf, stock)		       \
+  printf("┃ %s[%s]%s %s%s%s %dst\n", FG_BLUE, shelf, NORMAL, BOLD, \
 	 merch_name, NORMAL, stock)
 
 // Macro: PROMPT_ITALIC(msg)

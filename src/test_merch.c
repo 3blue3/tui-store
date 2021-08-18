@@ -1196,8 +1196,8 @@ void valid_index_test(void){
   new_item(store, "orange", "a fruit", 14, "D21", 123);
 
   // A Valid index would be a index from 1->length(merch);
-
-  for (int i = 1; i <= 5; i++)
+  int i;
+  for (i = 1; i <= 5; i++)
     CU_ASSERT_TRUE(valid_index(store, i));
 
 
@@ -1350,7 +1350,8 @@ void create_merch_test_populated_locs(void){
   
   char *shelfs[5] = {"A01", "A02", "A03", "A04", "A05"};
   size_t amounts[5] = {20, 21, 22, 23, 24};
-  for (int i = 0; i < 5; i++){
+  int i;
+  for (i = 0; i < 5; i++){
     shelf_t *shelf = create_shelf(shelfs[i], amounts[i]);
     ioopm_linked_list_append(new_merch->locs, ptr_elem(shelf));
     // Assert that the merch shelf db grows correctly
@@ -1412,12 +1413,14 @@ void shelf_exist_test(void){
   new_item(store, "Bob Dobbs", "Sells cars", 999, "F00", 1);
 
   // Add 5 shelfs
-  for (size_t amount  = 0; amount < 5; amount++){
+  size_t amount;
+  for ( amount  = 0; amount < 5; amount++){
     set_shelf(store, "Bob Dobbs", shelfs[amount], amount * 40);
   }
 
   // Assert they exist
-  for (int i=0; i < 5;i++) CU_ASSERT_TRUE(shelf_exists(store, shelfs[i]));  
+  int i;
+  for (i=0; i < 5;i++) CU_ASSERT_TRUE(shelf_exists(store, shelfs[i]));  
   store_destroy(store);
 }
 
@@ -1425,8 +1428,9 @@ void banner_end(void){
   NEWLINE;
   printf("%s%s%s_____________________________________________________________ %s\n", FG_GREEN, BG_BLACK, BOLD, NORMAL);
   printf("%s%s%s___ ____ ____ ___ ____    ____ _ _  _ _ ____ _  _ ____ ___    %s\n", FG_GREEN, BG_BLACK, BOLD, NORMAL);
-  printf("%s%s%s |  |___ [__   |  [__     |___ | |\\ | | [__  |__| |___ |  \\ %s\n", FG_GREEN, BG_BLACK, BOLD, NORMAL);
-  printf("%s%s%s |  |___ ___]  |  ___]    |    | | \\| | ___] |  | |___ |__/%s\n", FG_GREEN, BG_BLACK,   BOLD, NORMAL);
+  printf("%s%s%s |  |___ [__   |  [__     |___ | |\\ | | [__  |__| |___ |  \\   %s\n", FG_GREEN, BG_BLACK, BOLD, NORMAL);
+  printf("%s%s%s |  |___ ___]  |  ___]    |    | | \\| | ___] |  | |___ |__/   %s\n", FG_GREEN, BG_BLACK,   BOLD, NORMAL);
+  printf("%s%s%s                                                              %s\n", FG_GREEN, BG_BLACK,   BOLD, NORMAL);
   NEWLINE;
 							     
   CU_ASSERT_TRUE(true);
@@ -1438,6 +1442,7 @@ void banner_api_start(void){
   printf("%s%s%s|\\/| |___ |__/ |    |__| |___ |\\ | |  \\ | [__  |___    |__| |__] | %s\n",FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
   printf("%s%s%s|  | |___ |  \\ |___ |  | |___ | \\| |__/ | ___] |___    |  | |    | %s\n", FG_BRIGHT_BLUE, BG_BLACK, BOLD, NORMAL);
   printf("%s%s%s¨¨¨¨¨¨¨¨¨[Function specific Unit testing of the merch API]¨¨¨¨¨¨¨¨ %s\n", FG_BRIGHT_BLUE, BG_BLACK,   BOLD, NORMAL);
+
   NEWLINE;
   CU_ASSERT_TRUE(true);
 }
@@ -1447,7 +1452,7 @@ void banner_start(void){
   printf("%s%s%s_  _ ____ ____ ____ ____ ____ ____ ____%s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
   printf("%s%s%s|  | [__  |___ |    |__| [__  |___ [__ %s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
   printf("%s%s%s|__| ___] |___ |___ |  | ___] |___ ___]%s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
-  printf("%s%s%s¨¨¨Common usecases of the merch API¨¨¨¨%s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
+  printf("%s%s%s¨¨[Common usecases of the merch API]¨¨¨%s\n", FG_BRIGHT_BLUE, BG_BLACK,BOLD, NORMAL);
   NEWLINE;	 
 
   CU_ASSERT_TRUE(true);
@@ -1485,9 +1490,8 @@ int main()
     CU_cleanup_registry();
     return CU_get_error();
   }
-
-  bool merch_test =
-    ((NULL == CU_add_test(merch_test_suite,
+  bool merch_test = false;
+  merch_test = ((NULL == CU_add_test(merch_test_suite,
 			  "Display banner",
 			  banner_start)) ||
 
@@ -1544,8 +1548,8 @@ int main()
 			  "Display banner",
 			  banner_end))
      );
-
-  bool merch_api_test =
+  bool merch_api_test = false;
+   merch_api_test =
     ((NULL == CU_add_test(merch_api_test_suite,
 			  "Display banner",
 			  banner_api_start)) ||

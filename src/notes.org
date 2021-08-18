@@ -1,0 +1,55 @@
+#+TITLE: C Notes
+
+* Macros
+
+** Stringizing
+
+   Macro argument ==> String Constant
+
+   - =#= Operator
+
+     + Does not Macro expand the argument,
+       previous stringizing.     
+
+
+#+begin_src c
+
+#define WARN_IF(EXP)				\
+  do { if (EXP) \     
+       fprintf (stderr, "Warning: " #EXP "\n"); }	\
+while (0)
+
+
+	  //     WARN_IF (x == 0);
+  do { if (x == 0)
+      fprintf (stderr, "Warning: " "x == 0" "\n"); } while (0)
+#+end_src
+
+The argument for EXP is substituted once, as-is, into the if statement, and once, stringized, into the argument to fprintf. If x were a macro, it would be expanded in the if statement, but not in the string.
+
+The do and while (0) are a kludge to make it possible to write WARN_IF (arg);, which the resemblance of WARN_IF to a function would make C programmers want to do; see Swallowing the Semicolon.
+
+Stringizing in C involves more than putting double-quote characters around the fragment. The preprocessor backslash-escapes the quotes surrounding embedded string constants, and all backslashes within string and character constants, in order to get a valid C string constant with the proper contents. Thus, stringizing p = "foo\n"; results in "p = \"foo\\n\";". However, backslashes that are not inside string or character constants are not duplicated: ‘\n’ by itself stringizes to "\n".
+
+All leading and trailing whitespace in text being stringized is ignored. Any sequence of whitespace in the middle of the text is converted to a single space in the stringized result. Comments are replaced by whitespace long before stringizing happens, so they never appear in stringized text.
+
+There is no way to convert a macro argument into a character constant.
+
+If you want to stringize the result of expansion of a macro argument, you have to use two levels of macros.
+
+
+
+#+BEGIN_SRC C
+#define xstr(s) str(s)
+#define str(s) #s
+#define foo 4
+printf(str (foo));
+//     → "foo"
+printf(xstr (1 + 2));
+//     → xstr (4)
+//     → str (4)
+//     → "4"
+#+END_SRC
+
+#+RESULTS:
+: foo1 + 2

@@ -120,7 +120,7 @@ void rename_merch(webstore_t *store, char *name, char *new_name);
 size_t merch_stock(webstore_t *store, char *name);
 void set_merch_stock(webstore_t *store, char *name,
 		     size_t amount, char* location);
-
+bool merch_exist_p(webstore_t *store, char *name);
 void remove_name_from_shelf(webstore_t *store,
 			    char *shelf, char *name);
 int merch_price(webstore_t *store, char *name);

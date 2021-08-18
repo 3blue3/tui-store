@@ -13,6 +13,7 @@
 #include "webstore.h"
 #include "merch.h"
 #include "ansi.h"
+#include "macros.h"
 
 /* _  _ ____ ____ ____ _  _ ____ _  _ ___  _ ____ ____    ____ ___  _ 
    |\/| |___ |__/ |    |__| |___ |\ | |  \ | [__  |___    |__| |__] | 
@@ -152,7 +153,9 @@ void parse_args(webstore_t *store, int argc, char *argv[]){
   arg_parse(argc, argv, store->opt);
 }
 
-
+bool merch_exist_p(webstore_t *store, char *name){
+  return ioopm_hash_table_has_key(store->merch_db, ptr_elem(name));
+}
 void destroy_all_merch(webstore_t *store){
   // Remove all shelfs in storage_db, but not the hash-table.
   if ((!store) || (!store->merch_db)){

@@ -18,7 +18,7 @@ main: ${LIBS_HEADERS}
 
 ui: ${LIBS_HEADERS} ${UI_HEADER}
 	@printf "Compiling UI Demo to ./bin/ui-demo.out...\n"	
-	gcc -g -Wall -pedantic -std=c11 ${LIBS} ${UI} -o ./bin/ui_demo.out
+	gcc -g -Wall -pedantic -std=c11 ${LIBS} ${UI} ./src/main.c -o ./bin/ui_demo.out
 	@printf "\nFinished compiling.\n Run with 'make run_ui'\n"
 
 
@@ -38,7 +38,7 @@ clean_ui:
 
 tests: ${LIBS_HEADERS} ./src/test_merch.h
 	@echo "> Compiling test binary..."
-	gcc -g -Wall -pedantic -std=c11  ${LIBS} ./src/test_merch.c -lcunit -o ./bin/run_test
+	gcc -g -ansi -Wcomment -Wall -pedantic -std=gnu17  ${LIBS} ./src/test_merch.c  -lcunit -o ./bin/run_test
 	@echo "> Done!\n"
 
 clean_tests: 
@@ -87,7 +87,7 @@ run: main
 
 test_cart:
 	@printf "Compiling tests for the cart... \n"	
-	gcc -g -Wall -std=c11 list_linked.c common.c iterator.c \
+	gcc -g -Wall -Wcomment  -pedantic -std=c11 list_linked.c common.c iterator.c \
 	hash_table.c webstore.c utils.c cart.c merch.c test_cart_new.c -lcunit  -o ./bin
 
 runl: main

@@ -7,9 +7,12 @@
 #include "iterator.h"
 #include "list_linked.h"
 #include "common.h"
+#include "ui.h"
 #include "utils.h"
 #include "webstore.h"
 #include "cart.h"
+#include "ansi.h"
+#include "macros.h"
 
 #define get_elem_ptr(e) e.p
 #define get_elem_int(e) e.i
@@ -100,25 +103,17 @@ bool cart_id_exists(webstore_t *store, int id){
 
 bool valid_id(webstore_t *store, int id){
   // Valid Cart Id
-  
-  if ((ioopm_linked_list_size(store->all_shopping_carts) == 0) &&
-	    (id == 0)){
-    // Zero is always a valid cart id when no
-    // previous carts exist.
-    return true;
-  }
-
-  else if (id == store->active_cart){
+  if (id == store->active_cart){
     // The active cart is always valid
     return true;
   }    
   
   else if (id < ID_BOUNDS_MIN){
-    perror("valid_id: Id is under 0.\n");
+    PROMPT_INVALID("valid_id: Id is under 0");
     return false;
   }
   else if (id >= ID_BOUNDS_MAX){
-    perror("valid_id: Id is over the max-bounds.\n");
+    PROMPT_INVALID("valid_id: Id is over the max-bounds");
     return false;
   }
   
@@ -130,6 +125,7 @@ cart_t *get_cart(webstore_t *store, int id){
   
   if (!store->all_shopping_carts){
     perror("get_cart: Cart database is deallocated.\n");
+    PROMPT_INVALID(STR(!store->all_shopping_carts));
     return NULL;
   }
   
@@ -143,13 +139,14 @@ cart_t *get_cart(webstore_t *store, int id){
     current = current->next;
   } 
 
+  PROMPT_INVALID("Invalid Cart");
   //  perror("get_cart: Non-existing cart.\n"); 
   return NULL;
 }
 
 int amount_of_merch_in_cart(cart_t *cart, char *merch_name){
   if (!cart){
-    perror("amount_of_merch_in_cart: No active cart.\n");
+    PROMPT_INVALID("There is no active cart");
     return 0;
   }
     // Return the amount of stock a merch has in cart
@@ -183,8 +180,8 @@ bool cart_is_empty(cart_t *cart){
 //size_t cart_db_size(cart_t *cart){
 size_t cart_db_size(cart_t *cart){
   if (!cart){
-    perror("cart_db_size: No active cart.\n");
-    return -1;
+    PROMPT_INVALID("No active cart, hence contains no items");
+    return 0;
        
   }
   return ioopm_hash_table_size(cart->merch_in_cart);
@@ -192,23 +189,21 @@ size_t cart_db_size(cart_t *cart){
 
 void list_all_cart_id(webstore_t *store){
 
-  if (!store->all_shopping_carts){
-    // perror("list_all_cart_id: Cart database is deallocated.\n");
+
+
+  ioopm_link_t *current = (store->all_shopping_carts)->first;
+
+  if (!store->all_shopping_carts || !current ){
+    PROMPT_INVALID("No carts exists");
     return;
   }
-
-  ioopm_link_t *current = (store->all_shopping_carts)->first; 
-  if (current == NULL){
-    printf("┃ > No carts exists\n\n");
-    return;
-  }
-
-
+  LOG_CART("Lising all carts");  
   display_header("All Carts", true);
   
-  while (current != NULL) {
+  while (current) {
     
     cart_t *cart = get_elem_ptr(current->element);
+
     if (!cart){
       perror("list_all_cart_id: Cart database contains unallocated cart\nexiting...");
       exit(1);
@@ -218,7 +213,7 @@ void list_all_cart_id(webstore_t *store){
     current = current->next;
   }
 
-  puts("");
+  NEWLINE;
 }
 
 ///
@@ -250,27 +245,28 @@ cart_t *append_cart(webstore_t *store){
 //    }
 
 
-    if (store->all_shopping_carts)
-      if (store->all_shopping_carts->size > 1){
-	ioopm_linked_list_prepend(store->all_shopping_carts, ptr_elem(cart));
-	LOG_CART("Prepended new cart");
-      }else{
-	ioopm_linked_list_append(store->all_shopping_carts, ptr_elem(cart));
-	LOG_CART("Appended new cart");
-      }
-    
-    else {
-      LOG_CART("No shopping carts exist");
-      perror("No shopping carts exist, deallocated cart db.");
-      exit(1);
+  if (store->all_shopping_carts){
+    if (store->all_shopping_carts->size > 1){
+      ioopm_linked_list_prepend(store->all_shopping_carts, ptr_elem(cart));
+      LOG_CART("Prepended new cart");
+    }else{
+      ioopm_linked_list_append(store->all_shopping_carts, ptr_elem(cart));
+      LOG_CART("Appended new cart");
     }
+  }
+  
+  else {
+    LOG_CART("No shopping carts exist");
+    perror("No shopping carts exist, deallocated cart db.");
+    exit(1);
+  }
 
-    assert(cart_exists(store)); // Correctly added
+  assert(cart_exists(store)); // Correctly added
 
     
-    LOG_STR_INT("Cart list size after adding ==>", store->all_shopping_carts->size);  
+  LOG_STR_INT("Cart list size after adding ==>", store->all_shopping_carts->size);  
 
-    return cart;
+  return cart;
 }
 
 
@@ -281,29 +277,27 @@ cart_t *create_cart(webstore_t *store){
   cart_t *new_cart = calloc(1, sizeof(cart_t));
     
   //Hash Table containing all merch in cart with string key and int elem 
-    new_cart->merch_in_cart =
-      ioopm_hash_table_create(string_knr_hash,
-			      eq_elem_string,
-			      eq_elem_int); 
+  new_cart->merch_in_cart =
+   ioopm_hash_table_create(string_knr_hash,
+			    eq_elem_string,
+			    eq_elem_int); 
     
-    // Set id of cart to the total amount of existing carts
-    LOG_CART("create_cart: Creating a new cart...\n");
+  // Set id of cart to the total amount of existing carts
+  LOG_CART("create_cart: Creating a new cart...\n");
 
 
 
-    new_cart->id = get_largest_cart_id(store) + 1;
+  new_cart->id = get_largest_cart_id(store) + 1;
     
-    LOG_STR_INT("Found New Cart ID ==> ", new_cart->id);
+  LOG_STR_INT("Found New Cart ID ==> ", new_cart->id);
     
-    // Mark the new cart as active
-    store->active_cart = new_cart->id;
+  // Mark the new cart as active
+  store->active_cart = new_cart->id;
   
-    SLOG(store, "create_cart: Created a new cart...\n");
-    // Logging setup
-    if (store->opt->log_p)
-      printf("A new cart with Id %d has been created.\n",
-	     new_cart->id);
-
+  SLOG(store, "create_cart: Created a new cart...\n");
+  // Logging setup
+  if (store->opt->log_p)
+    LOG_CART("A new cart has been created.");
 
   return new_cart;
 }
@@ -388,11 +382,12 @@ void add_to_cart(webstore_t *store, char *name, int amount){ // Needs to save st
     return;
   }
   else if(amount <= 0){
-    printf("| You do not add anything...\n");
+    PROMPT_INVALID("You do not add anything");
+    return;
+  }else if (!merch_exist_p(store, name)){
+    PROMPT_INVALID("The specified merchendise does not exist");
     return;
   }
-
-
   // Should never get here
   else if(!valid_id(store, store->active_cart)){ 
     perror("add_to_cart: Invalid cart ID.\n");
@@ -470,7 +465,7 @@ void cart_destroy(cart_t *cart){
 }
 
 void destroy_all_carts(webstore_t *store){
-  if(!store->all_shopping_carts) return;
+   if(!store->all_shopping_carts) return;
     
   LOG_STR_INT("Active Cart id", store->active_cart);
   LOG_STR_INT("Amount of carts", store->all_shopping_carts->size);
@@ -679,9 +674,9 @@ void checkout(webstore_t *store){
       decrease_equal_stock(store, current_name, current_amount);
       //      change_stock_in_webstore(store, current_name, current_amount); 
 
-      printf("┃ Buying %s (%dst)x(%dkr)\n",
-	     current_name,
+      printf("┃ Buying %d of %s, with a price of %d per item\n",
 	     current_amount,
+	     current_name,
 	     merch_price(store, current_name));
 
       if(ioopm_iterator_has_next(iter_n)){
